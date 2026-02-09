@@ -20,12 +20,10 @@ export interface ProcessVideo {
 
 // Gallery images — add, remove, or reorder freely
 export const galleryImages: GalleryImage[] = [
-  { id: "1", src: "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=1200&q=80", alt: "Tattoo artwork 1" },
-  { id: "2", src: "https://images.unsplash.com/photo-1590246815117-c504e16a906d?w=1200&q=80", alt: "Tattoo artwork 2" },
-  { id: "3", src: "https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?w=1200&q=80", alt: "Tattoo artwork 3" },
-  { id: "4", src: "https://images.unsplash.com/photo-1542556398-95fb5b9f9b48?w=1200&q=80", alt: "Tattoo artwork 4" },
-  { id: "5", src: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?w=1200&q=80", alt: "Tattoo artwork 5" },
-  { id: "6", src: "https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?w=1200&q=80", alt: "Tattoo artwork 6" },
+  { id: "1", src: "/images/gallery/tattoo-1.jpeg", alt: "Tribal back tattoo" },
+  { id: "2", src: "/images/gallery/tattoo-2.png", alt: "Line art arm tattoo" },
+  { id: "3", src: "/images/gallery/tattoo-3.jpeg", alt: "Koi fish sleeve tattoo" },
+  { id: "4", src: "/images/gallery/tattoo-4.jpeg", alt: "Barong shoulder tattoo" },
 ];
 
 // Process videos — auto-play muted, loop
