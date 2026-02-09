@@ -1,13 +1,29 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import FilmGrain from "@/components/FilmGrain";
+import HeroSection from "@/components/HeroSection";
+import CinematicText from "@/components/CinematicText";
+import GallerySection from "@/components/GallerySection";
+import ProcessSection from "@/components/ProcessSection";
+import AboutSection from "@/components/AboutSection";
+import TrustSection from "@/components/TrustSection";
+import LocationSection from "@/components/LocationSection";
+import EndingSection from "@/components/EndingSection";
+import MobileBar from "@/components/MobileBar";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <main className="bg-background">
+      <FilmGrain />
+      <HeroSection />
+      <CinematicText text="INK IS IDENTITY" />
+      <CinematicText text="EVERY LINE TELLS A STORY" />
+      <GallerySection />
+      <ProcessSection />
+      <AboutSection />
+      <TrustSection />
+      <LocationSection />
+      <EndingSection />
+      <MobileBar />
+    </main>
   );
 };
 
