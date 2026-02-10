@@ -1,17 +1,14 @@
 // ============================================
 // DYNAMIC MEDIA CONFIGURATION
 // ============================================
-// To add/remove/reorder portfolio items:
+// To add/remove/reorder gallery images or videos:
 // Simply edit the arrays below. No code changes needed elsewhere.
 // Layout and animations auto-adjust.
 
-export interface PortfolioItem {
+export interface GalleryImage {
   id: string;
   src: string;
   alt: string;
-  year?: string;
-  caption?: string;
-  bgColor: string; // Background color for the section
 }
 
 export interface ProcessVideo {
@@ -21,41 +18,12 @@ export interface ProcessVideo {
   caption?: string;
 }
 
-// Portfolio items — add, remove, or reorder freely
-// Each item gets a full-viewport section with matching background
-export const portfolioItems: PortfolioItem[] = [
-  {
-    id: "1",
-    src: "/images/gallery/tattoo-1.jpeg",
-    alt: "Tribal back tattoo",
-    year: "2024",
-    caption: "Custom tribal design",
-    bgColor: "#1a1a1a",
-  },
-  {
-    id: "2",
-    src: "/images/gallery/tattoo-2.png",
-    alt: "Line art arm tattoo",
-    year: "2024",
-    caption: "Fine line work",
-    bgColor: "#2a2018",
-  },
-  {
-    id: "3",
-    src: "/images/gallery/tattoo-3.jpeg",
-    alt: "Koi fish sleeve tattoo",
-    year: "2023",
-    caption: "Japanese style sleeve",
-    bgColor: "#181a20",
-  },
-  {
-    id: "4",
-    src: "/images/gallery/tattoo-4.jpeg",
-    alt: "Barong shoulder tattoo",
-    year: "2023",
-    caption: "Traditional Barong piece",
-    bgColor: "#201a18",
-  },
+// Gallery images — add, remove, or reorder freely
+export const galleryImages: GalleryImage[] = [
+  { id: "1", src: "/images/gallery/tattoo-1.jpeg", alt: "Tribal back tattoo" },
+  { id: "2", src: "/images/gallery/tattoo-2.png", alt: "Line art arm tattoo" },
+  { id: "3", src: "/images/gallery/tattoo-3.jpeg", alt: "Koi fish sleeve tattoo" },
+  { id: "4", src: "/images/gallery/tattoo-4.jpeg", alt: "Barong shoulder tattoo" },
 ];
 
 // Process videos — auto-play muted, loop
