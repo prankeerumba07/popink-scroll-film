@@ -4,12 +4,11 @@ import { studioInfo } from "@/data/media";
 import { Instagram, Star, MapPin } from "lucide-react";
 
 const EndingSection = () => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-20%" });
 
   return (
-    <section ref={ref} className="relative min-h-[70vh] flex flex-col items-center justify-center py-24 px-4">
-      {/* Fade to dark gradient */}
+    <section ref={ref} className="relative min-h-[70vh] flex flex-col items-center justify-center py-24 pb-32 px-4">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-[hsl(0,0%,2%)]" />
 
       <div className="relative z-10 text-center">
