@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, useInView, useMotionValue, useSpring, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { galleryImages } from "@/data/media";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -8,12 +8,17 @@ const GallerySection = () => {
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
   const isMobile = useIsMobile();
 
-  // Stack order: array of indices, last = top of stack
-  const [stack, setStack] = useState<number[]>(() =>
-    galleryImages.map((_, i) => i)
-  );
+  // Cinematic entry: first image reveals full-bleed then shrinks into stack
+  const { scrollYProgress: entryProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "start center"],
+  });
+  const entryScale = useTransform(entryProgress, [0, 0.5, 1], [1.15, 1.05, 1]);
+  const entryOpacity = useTransform(entryProgress, [0, 0.3, 1], [0, 0.6, 1]);
 
-  // Mouse-follow with spring physics (lerp/inertia)
+  const [stack, setStack] = useState<number[]>(() => galleryImages.map((_, i) => i));
+  const [swiped, setSwiped] = useState(false);
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const springX = useSpring(mouseX, { stiffness: 80, damping: 20, mass: 0.8 });
@@ -36,29 +41,24 @@ const GallerySection = () => {
     mouseY.set(0);
   }, [mouseX, mouseY]);
 
-  // Click → send top card to back
   const cycleCard = useCallback(() => {
+    setSwiped(true);
     setStack((prev) => {
       const top = prev[prev.length - 1];
       return [top, ...prev.slice(0, -1)];
     });
   }, []);
 
-  // Mobile swipe
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart === null) return;
-    const diff = e.changedTouches[0].clientX - touchStart;
-    if (Math.abs(diff) > 50) cycleCard();
+    if (Math.abs(e.changedTouches[0].clientX - touchStart) > 50) cycleCard();
     setTouchStart(null);
   };
 
-  // Current top image index
   const topIndex = stack[stack.length - 1];
   const topImage = galleryImages[topIndex];
-
-  // Counter formatted: 0001 / 0004
   const currentNum = String(topIndex + 1).padStart(4, "0");
   const totalNum = String(galleryImages.length).padStart(4, "0");
 
@@ -69,24 +69,18 @@ const GallerySection = () => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Section header */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ duration: 1 }}
         className="text-center mb-8 px-4"
       >
-        <h2 className="text-3xl md:text-5xl text-foreground tracking-[0.2em]">
-          OUR WORK
-        </h2>
+        <h2 className="text-3xl md:text-5xl text-foreground tracking-[0.2em]">OUR WORK</h2>
         <div className="w-12 h-[1px] bg-primary mx-auto mt-4" />
       </motion.div>
 
-      {/* Stacked card pile */}
       <motion.div
-        initial={{ opacity: 0, y: 60 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 1, delay: 0.3 }}
+        style={{ scale: entryScale, opacity: entryOpacity }}
         className="relative w-[85vw] max-w-[480px] aspect-[3/4] cursor-pointer"
         onClick={cycleCard}
         onTouchStart={handleTouchStart}
@@ -97,8 +91,6 @@ const GallerySection = () => {
             const img = galleryImages[imgIndex];
             const distFromTop = stack.length - 1 - stackPos;
             const isTop = distFromTop === 0;
-
-            // Offsets for stacked look
             const offsetX = distFromTop * 6;
             const offsetY = distFromTop * -4;
             const rotate = distFromTop * 1.5 * (distFromTop % 2 === 0 ? 1 : -1);
@@ -118,16 +110,8 @@ const GallerySection = () => {
                   zIndex: stackPos,
                 }}
                 exit={{ opacity: 0, scale: 0.85, y: 40, rotate: -8 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 25,
-                  mass: 0.8,
-                }}
-                style={{
-                  x: isTop ? springX : offsetX,
-                  y: isTop ? springY : offsetY,
-                }}
+                transition={{ type: "spring", stiffness: 200, damping: 25, mass: 0.8 }}
+                style={{ x: isTop ? springX : offsetX, y: isTop ? springY : offsetY }}
                 className="absolute inset-0 rounded-sm overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
               >
                 <img
@@ -137,11 +121,7 @@ const GallerySection = () => {
                   draggable={false}
                   className="w-full h-full object-cover select-none"
                 />
-                {/* Subtle dark overlay on non-top cards */}
-                {!isTop && (
-                  <div className="absolute inset-0 bg-background/40" />
-                )}
-                {/* Grain on hover for top card */}
+                {!isTop && <div className="absolute inset-0 bg-background/40" />}
                 {isTop && (
                   <div className="absolute inset-0 opacity-[0.04] bg-[url('data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E')]" />
                 )}
@@ -151,7 +131,6 @@ const GallerySection = () => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Labels under the image */}
       <motion.div
         key={topIndex}
         initial={{ opacity: 0, y: 10 }}
@@ -173,7 +152,6 @@ const GallerySection = () => {
         )}
       </motion.div>
 
-      {/* Counter */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 0.4 } : {}}
@@ -183,8 +161,7 @@ const GallerySection = () => {
         {currentNum} / {totalNum}
       </motion.div>
 
-      {/* Mobile swipe hint */}
-      {isMobile && (
+      {isMobile && !swiped && (
         <motion.p
           initial={{ opacity: 0.6 }}
           animate={{ opacity: 0 }}
