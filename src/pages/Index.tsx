@@ -1,4 +1,5 @@
 import FilmGrain from "@/components/FilmGrain";
+import ScrollEngine from "@/components/ScrollEngine";
 import HeroSection from "@/components/HeroSection";
 import CinematicText from "@/components/CinematicText";
 import GallerySection from "@/components/GallerySection";
@@ -12,6 +13,7 @@ import MobileBar from "@/components/MobileBar";
 const Index = () => {
   return (
     <main className="bg-background">
+      <ScrollEngine />
       <FilmGrain />
       <HeroSection />
       <CinematicText text="INK IS IDENTITY" />
