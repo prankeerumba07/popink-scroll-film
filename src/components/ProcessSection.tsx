@@ -32,10 +32,13 @@ const ProcessSection = () => {
               muted
               loop
               playsInline
-              className="w-full aspect-video object-cover"
+              className="w-full aspect-video object-cover grayscale"
+              style={{ filter: "grayscale(1) contrast(1.1)" }}
             >
               <source src={video.src} type="video/mp4" />
             </video>
+            {/* Soft fade overlay */}
+            <div className="absolute inset-0 bg-background/30" />
             {video.caption && (
               <p className="text-center text-muted-foreground text-sm tracking-[0.2em] mt-4 tagline-word italic">
                 {video.caption}

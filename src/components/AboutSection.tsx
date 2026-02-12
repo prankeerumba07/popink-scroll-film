@@ -23,8 +23,7 @@ const AboutSection = () => {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-foreground/70 text-lg md:text-xl leading-relaxed tagline-word italic"
         >
-          Born from a love of ink and intention. Every piece we create
-          is a collaboration between artist and canvas — your skin, your story.
+          We don't just ink skin; we archive stories. PopInk Studios is a sanctuary for those who view their body as a canvas for the avant-garde.
         </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 20 }}

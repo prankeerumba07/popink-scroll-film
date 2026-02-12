@@ -9,7 +9,6 @@ const EndingSection = () => {
 
   return (
     <section ref={ref} className="relative min-h-[70vh] flex flex-col items-center justify-center py-24 px-4">
-      {/* Fade to dark gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-[hsl(0,0%,2%)]" />
 
       <div className="relative z-10 text-center">
@@ -42,14 +41,22 @@ const EndingSection = () => {
           </a>
         </motion.div>
 
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 0.3 } : {}}
           transition={{ duration: 1, delay: 1.2 }}
-          className="text-muted-foreground text-xs tracking-[0.3em] mt-12"
+          className="mt-12 space-y-1"
         >
-          © {new Date().getFullYear()} THE POPINK STUDIOS
-        </motion.p>
+          <p className="text-muted-foreground text-[10px] tracking-[2px] uppercase">
+            {studioInfo.address}
+          </p>
+          <p className="text-muted-foreground text-[10px] tracking-[2px]">
+            {studioInfo.phone}
+          </p>
+          <p className="text-muted-foreground text-[10px] tracking-[2px] mt-4">
+            © {new Date().getFullYear()} THE POPINK STUDIOS
+          </p>
+        </motion.div>
       </div>
     </section>
   );
