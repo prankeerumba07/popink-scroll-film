@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Instagram } from "lucide-react";
+import { Phone, MessageCircle, Navigation } from "lucide-react";
 import { studioInfo } from "@/data/media";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -18,10 +18,10 @@ const MobileBar = () => {
           <MessageCircle size={18} />
           <span className="text-[10px] tracking-[0.15em] uppercase">WhatsApp</span>
         </a>
-        <a href={studioInfo.socialLinks.instagram} target="_blank" rel="noopener noreferrer"
+        <a href={studioInfo.socialLinks.google} target="_blank" rel="noopener noreferrer"
           className="flex flex-col items-center gap-1 text-foreground/70 hover:text-primary transition-colors">
-          <Instagram size={18} />
-          <span className="text-[10px] tracking-[0.15em] uppercase">Instagram</span>
+          <Navigation size={18} />
+          <span className="text-[10px] tracking-[0.15em] uppercase">Directions</span>
         </a>
       </div>
     </div>

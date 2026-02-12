@@ -1,22 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const taglineWords = ["Where", "Skin", "Becomes", "Art."];
 
 const HeroSection = () => {
   const [showContent, setShowContent] = useState(false);
   const [showTagline, setShowTagline] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-
-  const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const videoOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.6], [0, -80]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   useEffect(() => {
     const t1 = setTimeout(() => setShowContent(true), 800);
@@ -25,7 +14,8 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden bg-background">
+    <section className="relative h-screen w-full overflow-hidden bg-background">
+      {/* Hero Video */}
       <AnimatePresence>
         {showContent && (
           <motion.div
@@ -33,24 +23,27 @@ const HeroSection = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="absolute inset-0"
-            style={{ scale: videoScale, opacity: videoOpacity }}
           >
             <video
-              autoPlay muted loop playsInline preload="auto"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
               className="absolute inset-0 w-full h-full object-cover"
             >
               <source src="/videos/hero-video.mp4" type="video/mp4" />
             </video>
+            {/* Dark overlay */}
             <div className="absolute inset-0 bg-background/70" />
+            {/* Spotlight gradient */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_70%)]" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <motion.div
-        className="absolute inset-0 flex flex-col items-center justify-center z-10"
-        style={{ y: contentY, opacity: contentOpacity }}
-      >
+      {/* Logo */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
         <AnimatePresence>
           {showContent && (
             <motion.img
@@ -64,6 +57,7 @@ const HeroSection = () => {
           )}
         </AnimatePresence>
 
+        {/* Tagline word-by-word */}
         <div className="flex flex-wrap justify-center gap-x-3 md:gap-x-4">
           {showTagline &&
             taglineWords.map((word, i) => (
@@ -78,14 +72,14 @@ const HeroSection = () => {
               </motion.span>
             ))}
         </div>
-      </motion.div>
+      </div>
 
+      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.4 }}
         transition={{ delay: 4, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        style={{ opacity: contentOpacity }}
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}

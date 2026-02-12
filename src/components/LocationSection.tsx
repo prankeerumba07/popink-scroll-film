@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { studioInfo } from "@/data/media";
-import { Phone, MessageCircle, Instagram } from "lucide-react";
 
 const LocationSection = () => {
   const ref = useRef(null);
@@ -19,7 +18,6 @@ const LocationSection = () => {
         <div className="w-12 h-[1px] bg-primary mx-auto mt-4" />
       </motion.div>
 
-      {/* Dark-mode styled map */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -42,44 +40,10 @@ const LocationSection = () => {
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 0.5 } : {}}
         transition={{ duration: 0.8, delay: 0.6 }}
-        className="text-center text-muted-foreground text-sm tracking-[0.12em] mt-6 max-w-md mx-auto"
+        className="text-center text-muted-foreground text-sm tracking-[0.15em] mt-6"
       >
         {studioInfo.address}
       </motion.p>
-
-      {/* Action buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, delay: 0.9 }}
-        className="flex flex-wrap justify-center gap-4 mt-10"
-      >
-        <a
-          href={`tel:${studioInfo.phone}`}
-          className="flex items-center gap-2 px-6 py-3 border border-border rounded-sm text-foreground/70 hover:text-primary hover:border-primary transition-colors duration-500 text-sm tracking-[0.15em] uppercase"
-        >
-          <Phone size={16} />
-          Call Us
-        </a>
-        <a
-          href={`https://wa.me/${studioInfo.whatsapp}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-6 py-3 border border-border rounded-sm text-foreground/70 hover:text-primary hover:border-primary transition-colors duration-500 text-sm tracking-[0.15em] uppercase"
-        >
-          <MessageCircle size={16} />
-          WhatsApp Us
-        </a>
-        <a
-          href={studioInfo.socialLinks.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-6 py-3 border border-border rounded-sm text-foreground/70 hover:text-primary hover:border-primary transition-colors duration-500 text-sm tracking-[0.15em] uppercase"
-        >
-          <Instagram size={16} />
-          Instagram
-        </a>
-      </motion.div>
     </section>
   );
 };
