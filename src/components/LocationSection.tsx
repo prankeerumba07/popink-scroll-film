@@ -28,7 +28,7 @@ const LocationSection = () => {
           src={studioInfo.mapEmbedUrl}
           width="100%"
           height="350"
-          style={{ border: 0, filter: "grayscale(1) invert(0.92) contrast(1.1)" }}
+          style={{ border: 0, filter: "grayscale(0.8) saturate(0.2) invert(0.92) contrast(1.1)" }}
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
@@ -40,7 +40,7 @@ const LocationSection = () => {
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 0.5 } : {}}
         transition={{ duration: 0.8, delay: 0.6 }}
-        className="text-center text-muted-foreground text-sm tracking-[0.15em] mt-6"
+        className="text-center text-muted-foreground text-xs tracking-[0.15em] mt-6 max-w-md mx-auto"
       >
         {studioInfo.address}
       </motion.p>

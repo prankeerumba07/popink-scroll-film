@@ -2,6 +2,9 @@ import FilmGrain from "@/components/FilmGrain";
 import HeroSection from "@/components/HeroSection";
 import CinematicText from "@/components/CinematicText";
 import GallerySection from "@/components/GallerySection";
+import StyleCategoriesSection from "@/components/StyleCategoriesSection";
+import PriceCalculator from "@/components/PriceCalculator";
+import ServicesSection from "@/components/ServicesSection";
 import ProcessSection from "@/components/ProcessSection";
 import AboutSection from "@/components/AboutSection";
 import TrustSection from "@/components/TrustSection";
@@ -17,6 +20,9 @@ const Index = () => {
       <CinematicText text="INK IS IDENTITY" />
       <CinematicText text="EVERY LINE TELLS A STORY" />
       <GallerySection />
+      <StyleCategoriesSection />
+      <PriceCalculator />
+      <ServicesSection />
       <ProcessSection />
       <AboutSection />
       <TrustSection />

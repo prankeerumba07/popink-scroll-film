@@ -19,7 +19,6 @@ const GallerySection = () => {
   return (
     <>
       <section ref={ref} className="relative py-20 overflow-hidden">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
@@ -30,7 +29,6 @@ const GallerySection = () => {
           <div className="w-12 h-[1px] bg-primary mx-auto mt-4" />
         </motion.div>
 
-        {/* Horizontal scroll gallery */}
         <div
           ref={scrollRef}
           className="flex gap-4 md:gap-6 overflow-x-auto px-4 md:px-12 pb-4 snap-x snap-mandatory scrollbar-hide"
@@ -55,11 +53,16 @@ const GallerySection = () => {
               <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors duration-500" />
               {/* Grain on hover */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500 bg-[url('data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E')]" />
+              {/* Caption — museum archive style */}
+              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
+                <p className="text-[9px] text-foreground/50 tracking-[2px] uppercase">
+                  {img.caption}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Mobile swipe hint */}
         {isMobile && (
           <motion.p
             initial={{ opacity: 0.6 }}
@@ -98,17 +101,21 @@ const GallerySection = () => {
             >
               <ChevronRight size={36} />
             </button>
-            <motion.img
-              key={lightboxIndex}
-              src={galleryImages[lightboxIndex].src}
-              alt={galleryImages[lightboxIndex].alt}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="max-w-[90vw] max-h-[85vh] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+              <motion.img
+                key={lightboxIndex}
+                src={galleryImages[lightboxIndex].src}
+                alt={galleryImages[lightboxIndex].alt}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="max-w-[90vw] max-h-[80vh] object-contain"
+              />
+              <p className="text-[9px] text-foreground/40 tracking-[2px] uppercase mt-4">
+                {galleryImages[lightboxIndex].caption}
+              </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
