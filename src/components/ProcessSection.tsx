@@ -32,7 +32,7 @@ const ProcessSection = () => {
               muted
               loop
               playsInline
-              className="w-full aspect-video object-cover grayscale"
+              className="w-full object-contain grayscale bg-background"
               style={{ filter: "grayscale(1) contrast(1.1)" }}
             >
               <source src={video.src} type="video/mp4" />
