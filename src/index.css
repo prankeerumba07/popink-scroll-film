@@ -110,3 +110,12 @@
   font-weight: 300;
   font-style: italic;
 }
+
+/* WhatsApp pulse animation */
+@keyframes wa-pulse {
+  0%, 85%, 100% { box-shadow: 0 0 0 0 hsla(0, 100%, 27%, 0.4); }
+  92% { box-shadow: 0 0 0 12px hsla(0, 100%, 27%, 0); }
+}
+.wa-pulse {
+  animation: wa-pulse 6s ease-in-out infinite;
+}
