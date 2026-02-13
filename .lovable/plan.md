@@ -1,91 +1,72 @@
 
 
-# The PopInk Studios – Cinematic One-Page Tattoo Website
+# PopInk UI Refinement & Stability Fixes
 
-## Vision
-A dark, cinematic single-page website that feels like scrolling through a tattoo film — not browsing a website. Matte black, deep blood-red accents, slow immersive animations, all controlled by scroll.
-
----
-
-## Section 1: Cinematic Opening (Movie Start)
-- **0.5–1s pure black screen** → fade-in of hero video + studio logo
-- Subtle film grain overlay appears after logo
-- Fullscreen auto-playing muted video with ~70% dark overlay
-- Logo (uploaded image) fades in with slight scale animation (98% → 100%)
-- Tagline **"Where Skin Becomes Art."** appears word-by-word
-- No buttons, no clutter — pure cinematic entrance
-- On scroll: text fades out, video continues, next section blends in
-
-## Section 2: Cinematic Text Moments
-- Short, powerful lines appear one at a time as you scroll:
-  - *"INK IS IDENTITY"*
-  - *"EVERY LINE TELLS A STORY"*
-- Each line fades in (0.6–0.8s), holds (1.5–2s), fades out (0.5s)
-- Parallax depth and slow zoom effects between text moments
-
-## Section 3: Tattoo Gallery (In-Page, Cinematic → Interactive)
-- **Entry**: One tattoo appears full-screen with a slow cinematic pan/zoom
-- **Transition**: Gallery "unlocks" into interactive browsing mode
-- **Desktop**: Horizontal scroll through large, high-contrast tattoo images
-- **Mobile**: Swipe-based navigation (like Instagram reels) with a one-time swipe hint
-- **Hover/Focus**: Slow zoom with subtle grain/glow effect
-- **Click**: Opens fullscreen immersive lightbox with swipe-to-next, smooth exit back to scroll
-- **Dynamic**: Gallery images managed via a simple data array — add, remove, reorder without code changes
-
-## Section 4: Process Videos & Finished Work
-- Auto-playing muted videos of the tattooing process
-- Fade in on scroll, loop seamlessly, fade out when scrolled past
-- Mixed with finished tattoo stills
-- Silence is intentional — no background music
-
-## Section 5: About the Studio
-- Appears subtly after the cinematic flow
-- Very short copy, calm and grounded tone
-- Artist-at-work visuals, preferring black & white imagery
-- Minimal — a few lines, not paragraphs
-
-## Section 6: Trust & Social Proof (Icon-Based)
-- Small icon row for Google Reviews, Instagram, JustDial
-- Links to provided URLs
-- No heavy text — just clean icons with subtle hover effects
-
-## Section 7: Location & Contact
-- Embedded Google Map with studio pin
-- Contact details displayed minimally
-- **Mobile**: Sticky bottom bar with Call, WhatsApp, and Directions buttons
-
-## Section 8: Cinematic Ending (Closing Scene)
-- Dark fade to near-black
-- Final line appears: **"INK WITH INTENTION."**
-- Contact/social icons fade in slowly below
-- Feels like end credits, not a footer
+Targeted corrections only -- no redesign. Five specific issues to resolve.
 
 ---
 
-## Global Design System
-- **Background**: Matte black + charcoal grey with subtle CSS film grain texture
-- **Accent**: Deep blood red (#8B0000), used very sparingly
-- **Typography**: Bold cinematic headings, minimal body text, no long paragraphs
-- **Lighting feel**: Low-light, studio spotlight aesthetic via CSS gradients/overlays
-- **Motion**: Slow, smooth, intentional — scroll-driven animations throughout
+## Fix 1: Remove Duplicate WhatsApp Button from Hero
 
-## Dynamic Content Architecture
-- All gallery images and videos stored in a simple configuration array
-- Adding/removing/reordering media only requires editing the data file
-- Layout and animations auto-adjust — no redesign needed
-- Supports unlimited gallery growth
+**File:** `src/components/HeroSection.tsx`
 
-## Responsive & Performance
-- Fully responsive: desktop, tablet, mobile
-- Touch & swipe optimized on mobile
-- Mobile feels equally cinematic (vertical scroll, swipe gallery)
-- Lazy-loaded images & videos
-- Hero video preloaded, everything else loaded on demand
-- Targeting 60fps scroll animations
-- SEO meta tags included
+Remove the entire WhatsApp CTA block (lines 76-89) that renders the "Book via WhatsApp" button below the tagline. The hero should contain only the video background, logo, tagline, and scroll indicator.
 
-## Assets Used
-- Studio logo (uploaded image)
-- Hero/background video (uploaded video files)
-- Tattoo gallery placeholder images (to be replaced with real tattoo photos)
+---
+
+## Fix 2: Gallery Auto-Scroll with Hover Pause & Pop-Out
+
+**File:** `src/components/GallerySection.tsx`
+
+Replace the current static horizontal scroll with a CSS-driven infinite marquee animation:
+
+- Duplicate the gallery images array to create a seamless loop
+- Use a CSS `@keyframes marquee` animation that translates the container from 0 to -50% (since images are doubled)
+- Slow cinematic speed (~40-60 seconds for a full cycle)
+- On hover over the gallery container: pause the animation (`animation-play-state: paused`)
+- On hover over individual images: scale up to 1.1 with a subtle shadow/glow, dim non-hovered siblings via group styling
+- On mobile (`isMobile`): disable auto-scroll entirely, keep the current swipe-based manual scroll
+- Add the marquee keyframes to `src/index.css`
+
+---
+
+## Fix 3: Process Video Height Constraint
+
+**File:** `src/components/ProcessSection.tsx`
+
+- Add `max-h-[500px] md:max-h-[600px]` to the video element
+- Keep `object-contain` and `w-full` so aspect ratio is preserved
+- The `bg-background` class provides cinematic letterboxing automatically
+- This prevents portrait-oriented videos from dominating the viewport
+
+---
+
+## Fix 4: Edge Flickering Fix
+
+**File:** `src/index.css`
+
+- Confirm `overflow-x: hidden` is on body (already present at line 58)
+- Add `overflow-x: hidden` to the `<main>` wrapper or `html` element as an extra safeguard
+- Remove fractional pixel transforms from the film grain animation -- round values to whole pixels
+- Ensure the film grain overlay doesn't extend beyond viewport edges by adding `overflow: hidden` to `.film-grain`
+
+---
+
+## Fix 5: Hero Video Stability
+
+**File:** `src/components/HeroSection.tsx`
+
+- Add a `poster` attribute to the hero video element pointing to a solid black frame or the logo image, ensuring no white flash before the video loads
+- The existing `preload="auto"` and lazy-loading architecture are already correct
+
+---
+
+## Files Modified
+
+| File | Change |
+|------|--------|
+| `src/components/HeroSection.tsx` | Remove WhatsApp CTA, add video poster |
+| `src/components/GallerySection.tsx` | Add auto-scroll marquee with hover pause/pop-out |
+| `src/components/ProcessSection.tsx` | Cap video height at 500-600px |
+| `src/index.css` | Add marquee keyframes, fix grain overflow, edge flicker prevention |
 
