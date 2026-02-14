@@ -30,6 +30,7 @@ const HeroSection = () => {
               loop
               playsInline
               preload="auto"
+              poster="/images/logo.jpeg"
               className="absolute inset-0 w-full h-full object-cover"
             >
               <source src="/videos/hero-video.mp4" type="video/mp4" />
@@ -73,20 +74,6 @@ const HeroSection = () => {
             ))}
         </div>
 
-        {/* WhatsApp CTA */}
-        {showTagline && (
-          <motion.a
-            href="https://wa.me/918420523235"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.2 }}
-            className="mt-10 inline-block bg-primary hover:bg-primary/80 text-primary-foreground px-8 py-4 text-sm tracking-[0.25em] uppercase transition-colors duration-300 rounded-sm wa-pulse"
-          >
-            Book via WhatsApp
-          </motion.a>
-        )}
       </div>
 
       {/* Scroll indicator */}

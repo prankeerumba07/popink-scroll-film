@@ -52,6 +52,10 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
@@ -64,32 +68,34 @@
   }
 }
 
-/* Film grain overlay */
+/* Film grain overlay — GPU accelerated, no edge bleed */
 .film-grain {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
   pointer-events: none;
   z-index: 9999;
   opacity: 0.04;
+  overflow: hidden;
+  will-change: transform;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   animation: grain 0.5s steps(1) infinite;
 }
 
 @keyframes grain {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-2%, -2%); }
-  20% { transform: translate(2%, 2%); }
-  30% { transform: translate(-1%, 3%); }
-  40% { transform: translate(3%, -1%); }
-  50% { transform: translate(-3%, 1%); }
-  60% { transform: translate(1%, -3%); }
-  70% { transform: translate(-2%, 2%); }
-  80% { transform: translate(2%, -2%); }
-  90% { transform: translate(-1%, 1%); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10% { transform: translate3d(-2px, -2px, 0); }
+  20% { transform: translate3d(2px, 2px, 0); }
+  30% { transform: translate3d(-1px, 3px, 0); }
+  40% { transform: translate3d(3px, -1px, 0); }
+  50% { transform: translate3d(-3px, 1px, 0); }
+  60% { transform: translate3d(1px, -3px, 0); }
+  70% { transform: translate3d(-2px, 2px, 0); }
+  80% { transform: translate3d(2px, -2px, 0); }
+  90% { transform: translate3d(-1px, 1px, 0); }
 }
 
 /* Scrollbar styling */
@@ -118,4 +124,51 @@
 }
 .wa-pulse {
   animation: wa-pulse 6s ease-in-out infinite;
+}
+
+/* ============================
+   Gallery Marquee — luxury auto-scroll
+   ============================ */
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.gallery-marquee-container {
+  overflow: hidden;
+  width: 100%;
+  padding: 0 0 1rem;
+}
+
+.gallery-marquee {
+  display: flex;
+  gap: 1.5rem;
+  width: max-content;
+  animation: marquee 45s linear infinite;
+}
+
+.gallery-marquee-container:hover .gallery-marquee {
+  animation-play-state: paused;
+}
+
+.gallery-marquee-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  width: 30vw;
+  min-width: 280px;
+  aspect-ratio: 3/4;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
+}
+
+.gallery-marquee-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 40px hsla(0, 100%, 27%, 0.15);
+  z-index: 10;
+}
+
+/* Dim siblings when any item is hovered */
+.gallery-marquee-container:hover .gallery-marquee-item:not(:hover) {
+  opacity: 0.85;
+  filter: brightness(0.85);
 }

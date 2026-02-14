@@ -9,12 +9,14 @@ const GallerySection = () => {
   const isInView = useInView(ref, { once: true, margin: "-20%" });
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const isMobile = useIsMobile();
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const openLightbox = (i: number) => setLightboxIndex(i);
+  const openLightbox = (i: number) => setLightboxIndex(i % galleryImages.length);
   const closeLightbox = () => setLightboxIndex(null);
   const nextImage = () => setLightboxIndex((prev) => prev !== null ? (prev + 1) % galleryImages.length : null);
   const prevImage = () => setLightboxIndex((prev) => prev !== null ? (prev - 1 + galleryImages.length) % galleryImages.length : null);
+
+  // Double images for seamless marquee loop
+  const marqueeImages = [...galleryImages, ...galleryImages];
 
   return (
     <>
@@ -29,39 +31,55 @@ const GallerySection = () => {
           <div className="w-12 h-[1px] bg-primary mx-auto mt-4" />
         </motion.div>
 
-        <div
-          ref={scrollRef}
-          className="flex gap-4 md:gap-6 overflow-x-auto px-4 md:px-12 pb-4 snap-x snap-mandatory scrollbar-hide"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
-        >
-          {galleryImages.map((img, i) => (
-            <motion.div
-              key={img.id}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: i * 0.12 }}
-              className="flex-none w-[80vw] md:w-[45vw] lg:w-[30vw] aspect-[3/4] snap-center cursor-pointer group relative overflow-hidden rounded-sm"
-              onClick={() => openLightbox(i)}
-            >
-              <img
-                src={img.src}
-                alt={img.alt}
-                loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors duration-500" />
-              {/* Grain on hover */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500 bg-[url('data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E')]" />
-              {/* Caption — museum archive style */}
-              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
-                <p className="text-[9px] text-foreground/50 tracking-[2px] uppercase">
-                  {img.caption}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {isMobile ? (
+          /* Mobile: swipe-only, no auto-scroll */
+          <div
+            className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+          >
+            {galleryImages.map((img, i) => (
+              <motion.div
+                key={img.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="flex-none w-[80vw] aspect-[3/4] snap-center cursor-pointer group relative overflow-hidden rounded-sm"
+                onClick={() => openLightbox(i)}
+              >
+                <img src={img.src} alt={img.alt} loading="lazy" className="w-full h-full object-cover" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
+                  <p className="text-[9px] text-foreground/50 tracking-[2px] uppercase">{img.caption}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          /* Desktop: CSS marquee auto-scroll */
+          <div className="gallery-marquee-container">
+            <div className="gallery-marquee">
+              {marqueeImages.map((img, i) => (
+                <div
+                  key={`${img.id}-${i}`}
+                  className="gallery-marquee-item group cursor-pointer"
+                  onClick={() => openLightbox(i)}
+                >
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-[400ms] ease-out group-hover:scale-110"
+                  />
+                  {/* Dim overlay for non-hovered siblings */}
+                  <div className="absolute inset-0 bg-background/0 transition-all duration-[400ms] group-hover:bg-transparent gallery-marquee-container:hover > .gallery-marquee > &:not(:hover) > &:bg-background/15" />
+                  {/* Caption */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
+                    <p className="text-[9px] text-foreground/50 tracking-[2px] uppercase">{img.caption}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {isMobile && (
           <motion.p
@@ -104,8 +122,8 @@ const GallerySection = () => {
             <div className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
               <motion.img
                 key={lightboxIndex}
-                src={galleryImages[lightboxIndex].src}
-                alt={galleryImages[lightboxIndex].alt}
+                src={galleryImages[lightboxIndex % galleryImages.length].src}
+                alt={galleryImages[lightboxIndex % galleryImages.length].alt}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -113,7 +131,7 @@ const GallerySection = () => {
                 className="max-w-[90vw] max-h-[80vh] object-contain"
               />
               <p className="text-[9px] text-foreground/40 tracking-[2px] uppercase mt-4">
-                {galleryImages[lightboxIndex].caption}
+                {galleryImages[lightboxIndex % galleryImages.length].caption}
               </p>
             </div>
           </motion.div>
