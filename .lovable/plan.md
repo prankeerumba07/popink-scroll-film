@@ -1,72 +1,68 @@
 
 
-# PopInk UI Refinement & Stability Fixes
+# Add Studio Timings -- PopInk Studios
 
-Targeted corrections only -- no redesign. Five specific issues to resolve.
-
----
-
-## Fix 1: Remove Duplicate WhatsApp Button from Hero
-
-**File:** `src/components/HeroSection.tsx`
-
-Remove the entire WhatsApp CTA block (lines 76-89) that renders the "Book via WhatsApp" button below the tagline. The hero should contain only the video background, logo, tagline, and scroll indicator.
+Minimal, luxury-integrated addition of operating hours in two locations, plus a dynamic open/closed indicator.
 
 ---
 
-## Fix 2: Gallery Auto-Scroll with Hover Pause & Pop-Out
+## Changes Overview
 
-**File:** `src/components/GallerySection.tsx`
+### 1. Update `src/data/media.ts` -- Add Studio Hours Data
 
-Replace the current static horizontal scroll with a CSS-driven infinite marquee animation:
+Add to the `studioInfo` object:
+- `hours: { open: 10, close: 23, label: "10:00 AM - 11:00 PM", daily: true }`
 
-- Duplicate the gallery images array to create a seamless loop
-- Use a CSS `@keyframes marquee` animation that translates the container from 0 to -50% (since images are doubled)
-- Slow cinematic speed (~40-60 seconds for a full cycle)
-- On hover over the gallery container: pause the animation (`animation-play-state: paused`)
-- On hover over individual images: scale up to 1.1 with a subtle shadow/glow, dim non-hovered siblings via group styling
-- On mobile (`isMobile`): disable auto-scroll entirely, keep the current swipe-based manual scroll
-- Add the marquee keyframes to `src/index.css`
+This centralizes the timing data for reuse across components.
 
----
+### 2. Update `src/components/ContactSection.tsx` -- Visible Timings
 
-## Fix 3: Process Video Height Constraint
+Below the contact cards grid, add a new animated block:
 
-**File:** `src/components/ProcessSection.tsx`
+- **"STUDIO HOURS"** label in uppercase, tracking `[0.2em]`, muted foreground
+- **"Open Daily"** line
+- **"10:00 AM - 11:00 PM"** line
+- A small dynamic dot indicator:
+  - Green dot + "OPEN NOW" if current time is between 10 AM and 11 PM (IST)
+  - Muted red dot + "CLOSED" otherwise
+- Fade-in animation matching existing section timing
+- Centered, elegant spacing, no icons or emoji
 
-- Add `max-h-[500px] md:max-h-[600px]` to the video element
-- Keep `object-contain` and `w-full` so aspect ratio is preserved
-- The `bg-background` class provides cinematic letterboxing automatically
-- This prevents portrait-oriented videos from dominating the viewport
+### 3. Update `src/components/EndingSection.tsx` -- Footer Timings
 
----
+In the footer metadata block (alongside address and phone), add one line:
 
-## Fix 4: Edge Flickering Fix
+```
+OPEN DAILY -- 10:00 AM - 11:00 PM
+```
 
-**File:** `src/index.css`
-
-- Confirm `overflow-x: hidden` is on body (already present at line 58)
-- Add `overflow-x: hidden` to the `<main>` wrapper or `html` element as an extra safeguard
-- Remove fractional pixel transforms from the film grain animation -- round values to whole pixels
-- Ensure the film grain overlay doesn't extend beyond viewport edges by adding `overflow: hidden` to `.film-grain`
+- Same `text-[10px] tracking-[2px]` styling as existing footer text
+- Muted foreground color at 0.3 opacity (matching existing lines)
+- Placed between the phone number and copyright line
 
 ---
 
-## Fix 5: Hero Video Stability
+## Technical Details
 
-**File:** `src/components/HeroSection.tsx`
+### Open/Closed Logic
 
-- Add a `poster` attribute to the hero video element pointing to a solid black frame or the logo image, ensuring no white flash before the video loads
-- The existing `preload="auto"` and lazy-loading architecture are already correct
+A simple helper using `Intl.DateTimeFormat` with `Asia/Kolkata` timezone:
 
----
+```text
+const now = new Date();
+const kolkataHour = Number(
+  new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: false, timeZone: 'Asia/Kolkata' }).format(now)
+);
+const isOpen = kolkataHour >= 10 && kolkataHour < 23;
+```
 
-## Files Modified
+This ensures accurate IST-based status regardless of the visitor's local timezone.
+
+### Files Modified
 
 | File | Change |
 |------|--------|
-| `src/components/HeroSection.tsx` | Remove WhatsApp CTA, add video poster |
-| `src/components/GallerySection.tsx` | Add auto-scroll marquee with hover pause/pop-out |
-| `src/components/ProcessSection.tsx` | Cap video height at 500-600px |
-| `src/index.css` | Add marquee keyframes, fix grain overflow, edge flicker prevention |
+| `src/data/media.ts` | Add `hours` to `studioInfo` |
+| `src/components/ContactSection.tsx` | Add studio hours block with open/closed indicator below cards |
+| `src/components/EndingSection.tsx` | Add one-line timing in footer metadata |
 
