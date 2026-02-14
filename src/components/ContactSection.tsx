@@ -77,7 +77,46 @@ const ContactSection = () => {
           </motion.a>
         ))}
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 1, delay: 1 }}
+        className="mt-16 text-center space-y-3"
+      >
+        <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
+          STUDIO HOURS
+        </p>
+        <p className="text-foreground/70 text-sm tracking-[0.15em]">
+          Open Daily
+        </p>
+        <p className="text-foreground/60 text-sm tracking-[0.1em]">
+          {studioInfo.hours.label}
+        </p>
+        <StudioStatus />
+      </motion.div>
     </section>
+  );
+};
+
+const StudioStatus = () => {
+  const now = new Date();
+  const kolkataHour = Number(
+    new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: false, timeZone: 'Asia/Kolkata' }).format(now)
+  );
+  const isOpen = kolkataHour >= 10 && kolkataHour < 23;
+
+  return (
+    <div className="flex items-center justify-center gap-2 pt-2">
+      <span
+        className={`inline-block w-1.5 h-1.5 rounded-full ${
+          isOpen ? 'bg-green-500/80' : 'bg-red-400/50'
+        }`}
+      />
+      <span className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        {isOpen ? 'OPEN NOW' : 'CLOSED'}
+      </span>
+    </div>
   );
 };
 
