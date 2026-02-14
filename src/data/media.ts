@@ -44,4 +44,10 @@ export const studioInfo = {
     instagramDM: "https://ig.me/m/the_popink_tattoo_studio",
     justdial: "https://www.justdial.com/Kolkata/The-Popink-Tattoo-Studio",
   },
+  hours: {
+    open: 10,
+    close: 23,
+    label: "10:00 AM – 11:00 PM",
+    daily: true,
+  },
 };

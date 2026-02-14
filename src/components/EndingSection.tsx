@@ -53,6 +53,9 @@ const EndingSection = () => {
           <p className="text-muted-foreground text-[10px] tracking-[2px]">
             {studioInfo.phone}
           </p>
+          <p className="text-muted-foreground text-[10px] tracking-[2px]">
+            OPEN DAILY — {studioInfo.hours.label}
+          </p>
           <p className="text-muted-foreground text-[10px] tracking-[2px] mt-4">
             © {new Date().getFullYear()} THE POPINK STUDIOS
           </p>
