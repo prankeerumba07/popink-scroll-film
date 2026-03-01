@@ -3,7 +3,6 @@ import FilmGrain from "@/components/FilmGrain";
 import HeroSection from "@/components/HeroSection";
 import CinematicText from "@/components/CinematicText";
 import MobileBar from "@/components/MobileBar";
-import Chatbot from "@/components/Chatbot";
 
 // Lazy-load everything below the fold for performance
 const GallerySection = lazy(() => import("@/components/GallerySection"));
@@ -18,6 +17,7 @@ const TrustSection = lazy(() => import("@/components/TrustSection"));
 const LocationSection = lazy(() => import("@/components/LocationSection"));
 const ContactSection = lazy(() => import("@/components/ContactSection"));
 const EndingSection = lazy(() => import("@/components/EndingSection"));
+const Chatbot = lazy(() => import("@/components/Chatbot"));
 
 const SectionFallback = () => (
   <div className="h-[50vh] flex items-center justify-center">
@@ -69,7 +69,9 @@ const Index = () => {
         <EndingSection />
       </Suspense>
       <MobileBar />
-      <Chatbot />
+      <Suspense fallback={null}>
+        <Chatbot />
+      </Suspense>
     </main>
   );
 };
