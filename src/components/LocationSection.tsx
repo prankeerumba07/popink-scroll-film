@@ -7,12 +7,12 @@ const LocationSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-20%" });
 
   return (
-    <section ref={ref} className="relative py-20 px-4 md:px-12">
+    <section ref={ref} className="relative py-14 px-4 md:px-12">
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ duration: 1 }}
-        className="text-center mb-10"
+        className="text-center mb-8"
       >
         <h2 className="text-3xl md:text-5xl text-foreground tracking-[0.2em]">FIND US</h2>
         <div className="w-12 h-[1px] bg-primary mx-auto mt-4" />
@@ -40,7 +40,7 @@ const LocationSection = () => {
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 0.5 } : {}}
         transition={{ duration: 0.8, delay: 0.6 }}
-        className="text-center text-muted-foreground text-xs tracking-[0.15em] mt-6 max-w-md mx-auto"
+        className="text-center text-muted-foreground text-xs tracking-[0.15em] mt-5 max-w-md mx-auto"
       >
         {studioInfo.address}
       </motion.p>

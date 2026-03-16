@@ -31,6 +31,7 @@ const Index = () => {
       <FilmGrain />
       <HeroSection />
       <CinematicText text="INK IS IDENTITY" />
+      <div className="py-2" />
       <CinematicText text="EVERY LINE TELLS A STORY" />
       <Suspense fallback={<SectionFallback />}>
         <GallerySection />
