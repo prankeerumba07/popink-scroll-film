@@ -20,7 +20,7 @@ const contactCards = [
     icon: MapPin,
     label: "VISIT THE STUDIO",
     detail: studioInfo.address,
-    href: `https://www.google.com/maps/search/?api=1&query=22.5125,88.3315`,
+    href: `https://www.google.com/maps/search/?api=1&query=22.5089,88.3331`,
   },
   {
     icon: Instagram,
