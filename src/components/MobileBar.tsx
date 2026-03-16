@@ -18,7 +18,7 @@ const MobileBar = () => {
           <MessageCircle size={18} />
           <span className="text-[10px] tracking-[0.15em] uppercase">WhatsApp</span>
         </a>
-        <a href={`https://www.google.com/maps/search/?api=1&query=22.5125,88.3315`} target="_blank" rel="noopener noreferrer"
+        <a href={`https://www.google.com/maps/search/?api=1&query=22.5089,88.3331`} target="_blank" rel="noopener noreferrer"
           className="flex flex-col items-center gap-1 text-foreground/70 hover:text-primary transition-colors">
           <Navigation size={18} />
           <span className="text-[10px] tracking-[0.15em] uppercase">Directions</span>
