@@ -20,7 +20,7 @@ const GallerySection = () => {
 
   return (
     <>
-      <section ref={ref} className="relative py-20 overflow-hidden">
+      <section ref={ref} className="relative py-14 overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
