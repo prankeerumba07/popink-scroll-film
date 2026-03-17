@@ -6,7 +6,7 @@ const AboutSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-20%" });
 
   return (
-    <section ref={ref} className="relative py-24 px-4 md:px-12">
+    <section ref={ref} className="relative py-16 px-4 md:px-12">
       <div className="max-w-3xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0 }}

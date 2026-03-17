@@ -35,7 +35,7 @@ const ContactSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-15%" });
 
   return (
-    <section ref={ref} className="relative py-28 px-4 md:px-12">
+    <section ref={ref} className="relative py-16 px-4 md:px-12">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}

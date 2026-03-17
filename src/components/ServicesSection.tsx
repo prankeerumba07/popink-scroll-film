@@ -29,7 +29,7 @@ const ServicesSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-15%" });
 
   return (
-    <section ref={ref} className="relative py-24 px-4 md:px-12">
+    <section ref={ref} className="relative py-16 px-4 md:px-12">
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}

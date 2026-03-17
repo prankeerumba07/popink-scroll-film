@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import ArtistModal, { type ArtistProfile } from "./ArtistModal";
+import { studioInfo } from "@/data/media";
 
 const artists: ArtistProfile[] = [
   {
@@ -12,6 +13,7 @@ const artists: ArtistProfile[] = [
     bio: "A masterful ink artist with over 8 years of experience transforming skin into living canvases. Trained under some of the finest realism artists in India, Artist One brings an obsessive attention to detail and an almost photographic precision to every portrait and hyper-realistic piece.",
     philosophy: "Every tattoo is a covenant between artist and canvas. I don't just replicate images — I breathe life into them. The skin remembers, and my job is to make that memory extraordinary.",
     signatureStyle: "Known for dramatic light-and-shadow interplay in portrait work, using micro-detail layering to achieve a three-dimensional depth that seems to pulse beneath the skin.",
+    tags: ["Hyper-Realism", "Portraits", "Black & Grey", "Memorial Art"],
     portfolioHighlights: [
       "500+ portrait tattoos completed",
       "Featured in Kolkata Ink Festival 2023",
@@ -28,6 +30,7 @@ const artists: ArtistProfile[] = [
     bio: "An architect of ink who sees the body as a three-dimensional structure to be adorned with precision-engineered patterns. With 6+ years of dedicated practice, Artist Two has developed a signature approach that merges sacred geometry with contemporary blackwork aesthetics.",
     philosophy: "Mathematics is the language of the universe, and geometry is its art. I use the body's natural contours as guidelines, creating designs that flow with anatomy rather than fighting it.",
     signatureStyle: "Precision-engineered geometric patterns that wrap and flow with the body's natural musculature, combining dot-work gradients with bold blackwork structures.",
+    tags: ["Blackwork", "Geometric", "Sacred Geometry", "Dot-work"],
     portfolioHighlights: [
       "Pioneered 'Architectural Blackwork' technique locally",
       "Full sleeve geometric compositions specialist",
@@ -44,6 +47,7 @@ const artists: ArtistProfile[] = [
     bio: "The studio's precision specialist with 5+ years dedicated to the art of restraint. Artist Three proves that sometimes the most powerful statement is the quietest one — a single, perfect line that carries the weight of an entire story.",
     philosophy: "Less is more, but only when that 'less' is absolutely perfect. A fine line has no room for error. Every stroke must be intentional, every curve deliberate. That's where the beauty lives.",
     signatureStyle: "Ultra-fine single-needle work creating delicate, almost ethereal designs that age gracefully. Known for script work that reads like calligraphy and minimalist designs that feel like whispered secrets.",
+    tags: ["Fine Line", "Minimalist", "Script", "Botanical"],
     portfolioHighlights: [
       "Single-needle fine-line specialist",
       "Custom hand-lettered script designs",
@@ -60,12 +64,12 @@ const ResidentVisionaries = () => {
 
   return (
     <>
-      <section ref={ref} className="relative py-28 px-4 md:px-12">
+      <section ref={ref} className="relative py-16 px-4 md:px-12">
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 1 }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-6xl text-foreground tracking-[0.2em]">
             RESIDENT VISIONARIES
@@ -111,12 +115,22 @@ const ResidentVisionaries = () => {
                 <p className="text-foreground/30 text-[10px] tracking-[0.15em] uppercase mb-3">
                   {artist.specialty}
                 </p>
-                <button
-                  onClick={() => setSelectedArtist(artist)}
-                  className="text-[10px] text-primary tracking-[0.25em] uppercase border border-primary/30 hover:border-primary hover:bg-primary/10 px-4 py-2 rounded-sm transition-all duration-300"
-                >
-                  Learn More
-                </button>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setSelectedArtist(artist)}
+                    className="text-[10px] text-primary tracking-[0.25em] uppercase border border-primary/30 hover:border-primary hover:bg-primary/10 px-4 py-2 rounded-sm transition-all duration-300"
+                  >
+                    Learn More
+                  </button>
+                  <a
+                    href={`https://wa.me/${studioInfo.whatsapp}?text=${encodeURIComponent(`Hi PopInk, I'd like to book a consultation with ${artist.name}.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-primary-foreground tracking-[0.25em] uppercase bg-primary/80 hover:bg-primary px-4 py-2 rounded-sm transition-all duration-300"
+                  >
+                    Book
+                  </a>
+                </div>
               </div>
 
               {/* Hover border glow */}
