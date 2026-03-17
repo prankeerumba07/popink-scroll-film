@@ -52,11 +52,17 @@ const TattooPreview = () => {
       });
       setCameraStream(stream);
       setCameraMode(true);
-      if (videoRef.current) videoRef.current.srcObject = stream;
     } catch (e) {
       console.error("Camera error:", e);
     }
   }, []);
+
+  // Bind stream to video element when both are ready
+  useEffect(() => {
+    if (cameraMode && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [cameraMode, cameraStream]);
 
   const stopCamera = useCallback(() => {
     cameraStream?.getTracks().forEach((t) => t.stop());
@@ -66,7 +72,7 @@ const TattooPreview = () => {
 
   useEffect(() => () => { cameraStream?.getTracks().forEach((t) => t.stop()); }, [cameraStream]);
 
-  // Touch/mouse handling — ONLY for tattoo dragging, prevent propagation
+  // Touch/mouse handling — ONLY for tattoo dragging
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
@@ -144,7 +150,7 @@ const TattooPreview = () => {
     bodyImg.src = bodyImage;
   }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation]);
 
-  // Price estimate with complexity & color
+  // Price estimate
   const estimatePrice = useCallback(() => {
     let min: number, max: number;
     if (tattooSize < 80) { min = 3000; max = 6000; }
@@ -302,7 +308,8 @@ const TattooPreview = () => {
                         top: tattooPos.y - tattooSize / 2,
                         width: tattooSize,
                         height: tattooSize,
-                        transform: `rotate(${tattooRotation}deg)`,
+                        transform: `rotate(${tattooRotation}deg) perspective(800px) rotateX(2deg) rotateY(1deg)`,
+                        transformOrigin: "center center",
                       }}
                     >
                       <img
@@ -312,18 +319,26 @@ const TattooPreview = () => {
                         draggable={false}
                         style={{
                           mixBlendMode: "multiply",
-                          opacity: 0.88,
-                          filter: "blur(0.4px) contrast(0.92) saturate(0.9)",
+                          opacity: 0.87,
+                          filter: "blur(0.4px) contrast(0.9) saturate(0.85)",
                         }}
                       />
                       {/* Skin grain overlay for realism */}
                       <div
-                        className="absolute inset-0 pointer-events-none"
+                        className="absolute inset-0 pointer-events-none rounded-sm"
                         style={{
                           mixBlendMode: "overlay",
-                          opacity: 0.08,
-                          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                          opacity: 0.1,
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
                           backgroundRepeat: "repeat",
+                        }}
+                      />
+                      {/* Subtle shadow falloff at edges */}
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          boxShadow: "inset 0 0 15px 5px hsla(var(--background) / 0.15)",
+                          borderRadius: "2px",
                         }}
                       />
                     </div>

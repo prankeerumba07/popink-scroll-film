@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { galleryImages } from "@/data/media";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,27 +12,38 @@ const GallerySection = () => {
 
   const openLightbox = (i: number) => setLightboxIndex(i % galleryImages.length);
   const closeLightbox = () => setLightboxIndex(null);
-  const nextImage = () => setLightboxIndex((prev) => prev !== null ? (prev + 1) % galleryImages.length : null);
-  const prevImage = () => setLightboxIndex((prev) => prev !== null ? (prev - 1 + galleryImages.length) % galleryImages.length : null);
+  const nextImage = useCallback(() => setLightboxIndex((prev) => prev !== null ? (prev + 1) % galleryImages.length : null), []);
+  const prevImage = useCallback(() => setLightboxIndex((prev) => prev !== null ? (prev - 1 + galleryImages.length) % galleryImages.length : null), []);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") nextImage();
+      if (e.key === "ArrowLeft") prevImage();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIndex, nextImage, prevImage]);
 
   // Double images for seamless marquee loop
   const marqueeImages = [...galleryImages, ...galleryImages];
 
   return (
     <>
-      <section ref={ref} className="relative py-14 overflow-hidden">
+      <section ref={ref} className="relative py-10 overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 1 }}
-          className="text-center mb-12 px-4"
+          className="text-center mb-10 px-4"
         >
           <h2 className="text-3xl md:text-5xl text-foreground tracking-[0.2em]">OUR WORK</h2>
           <div className="w-12 h-[1px] bg-primary mx-auto mt-4" />
         </motion.div>
 
         {isMobile ? (
-          /* Mobile: swipe-only, no auto-scroll */
           <div
             className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
@@ -54,7 +65,6 @@ const GallerySection = () => {
             ))}
           </div>
         ) : (
-          /* Desktop: CSS marquee auto-scroll */
           <div className="gallery-marquee-container">
             <div className="gallery-marquee">
               {marqueeImages.map((img, i) => (
@@ -69,9 +79,6 @@ const GallerySection = () => {
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-[400ms] ease-out group-hover:scale-110"
                   />
-                  {/* Dim overlay for non-hovered siblings */}
-                  <div className="absolute inset-0 bg-background/0 transition-all duration-[400ms] group-hover:bg-transparent gallery-marquee-container:hover > .gallery-marquee > &:not(:hover) > &:bg-background/15" />
-                  {/* Caption */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
                     <p className="text-[9px] text-foreground/50 tracking-[2px] uppercase">{img.caption}</p>
                   </div>
@@ -93,7 +100,7 @@ const GallerySection = () => {
         )}
       </section>
 
-      {/* Fullscreen Lightbox */}
+      {/* Fullscreen Lightbox with keyboard nav */}
       <AnimatePresence>
         {lightboxIndex !== null && (
           <motion.div
