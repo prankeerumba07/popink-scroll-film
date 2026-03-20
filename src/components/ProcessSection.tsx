@@ -7,7 +7,7 @@ const ProcessSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-20%" });
 
   return (
-    <section ref={ref} className="relative py-20 px-4 md:px-12">
+    <section ref={ref} className="relative py-14 px-4 md:px-12">
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
