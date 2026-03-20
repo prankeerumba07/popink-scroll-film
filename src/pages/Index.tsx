@@ -12,6 +12,7 @@ const TattooPreview = lazy(() => import("@/components/TattooPreview"));
 const ResidentVisionaries = lazy(() => import("@/components/ResidentVisionaries"));
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ProcessSection = lazy(() => import("@/components/ProcessSection"));
+const WhyPopInk = lazy(() => import("@/components/WhyPopInk"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
 const TrustSection = lazy(() => import("@/components/TrustSection"));
 const LocationSection = lazy(() => import("@/components/LocationSection"));
@@ -20,7 +21,7 @@ const EndingSection = lazy(() => import("@/components/EndingSection"));
 const Chatbot = lazy(() => import("@/components/Chatbot"));
 
 const SectionFallback = () => (
-  <div className="h-[50vh] flex items-center justify-center">
+  <div className="h-[30vh] flex items-center justify-center">
     <div className="w-6 h-6 border border-primary/40 border-t-primary rounded-full animate-spin" />
   </div>
 );
@@ -31,7 +32,6 @@ const Index = () => {
       <FilmGrain />
       <HeroSection />
       <CinematicText text="INK IS IDENTITY" />
-      <div className="py-1" />
       <CinematicText text="EVERY LINE TELLS A STORY" />
       <Suspense fallback={<SectionFallback />}>
         <GallerySection />
@@ -53,6 +53,9 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <ProcessSection />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <WhyPopInk />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <AboutSection />
