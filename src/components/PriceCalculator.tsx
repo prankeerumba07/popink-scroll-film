@@ -57,7 +57,7 @@ const PriceCalculator = () => {
     : "";
 
   return (
-    <section ref={ref} className="relative py-28 px-4 md:px-12">
+    <section ref={ref} className="relative py-16 px-4 md:px-12">
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
