@@ -14,6 +14,14 @@ const artists: ArtistProfile[] = [
     philosophy: "Every tattoo is a covenant between artist and canvas. I don't just replicate images — I breathe life into them. The skin remembers, and my job is to make that memory extraordinary.",
     signatureStyle: "Known for dramatic light-and-shadow interplay in portrait work, using micro-detail layering to achieve a three-dimensional depth that seems to pulse beneath the skin.",
     tags: ["Hyper-Realism", "Portraits", "Black & Grey", "Memorial Art"],
+    portfolioImages: [
+      "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=400&q=80",
+      "https://images.unsplash.com/photo-1590246815117-0b5fbf67f78d?w=400&q=80",
+      "https://images.unsplash.com/photo-1562962230-16e4623d36e6?w=400&q=80",
+      "https://images.unsplash.com/photo-1598371839696-5c5bb1fed6e2?w=400&q=80",
+      "https://images.unsplash.com/photo-1567400358520-44e220972306?w=400&q=80",
+      "https://images.unsplash.com/photo-1542856391-010fb87dcfed?w=400&q=80",
+    ],
     portfolioHighlights: [
       "500+ portrait tattoos completed",
       "Featured in Kolkata Ink Festival 2023",
