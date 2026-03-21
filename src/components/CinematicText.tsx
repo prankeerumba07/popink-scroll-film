@@ -13,7 +13,7 @@ const CinematicText = ({ text, className = "" }: CinematicTextProps) => {
   return (
     <section
       ref={ref}
-      className={`min-h-[35vh] flex items-center justify-center relative ${className}`}
+      className={`min-h-[45vh] flex items-center justify-center relative ${className}`}
     >
       {/* Spotlight */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--secondary))_0%,transparent_60%)] opacity-30" />

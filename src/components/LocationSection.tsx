@@ -28,7 +28,7 @@ const LocationSection = () => {
           src={studioInfo.mapEmbedUrl}
           width="100%"
           height="350"
-          style={{ border: 0, filter: "grayscale(0.8) saturate(0.2) invert(0.92) contrast(1.1)" }}
+          style={{ border: 0 }}
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
