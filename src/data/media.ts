@@ -41,7 +41,7 @@ export const studioInfo = {
   whatsapp: "918420523235",
   email: "hello@thepopinkstudios.com",
   address: "Triangular Park, 19/4 Plot No. 141, Sahapur, New Alipore, Kolkata, West Bengal 700053",
-  mapEmbedUrl: "https://www.google.com/maps?q=22.5089,88.3331&z=16&output=embed",
+  mapEmbedUrl: "https://www.google.com/maps?q=22.5123953,88.3280544&z=17&output=embed",
   socialLinks: {
     google: "https://www.google.com/search?q=the+popink+tattoo+studio",
     instagram: "https://www.instagram.com/the_popink_tattoo_studio/",

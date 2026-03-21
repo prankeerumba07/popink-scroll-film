@@ -172,3 +172,43 @@
   opacity: 0.85;
   filter: brightness(0.85);
 }
+
+/* ============================
+   Reviews Marquee
+   ============================ */
+@keyframes reviews-scroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.reviews-marquee-container {
+  overflow: hidden;
+  width: 100%;
+}
+
+.reviews-marquee {
+  display: flex;
+  gap: 1.5rem;
+  width: max-content;
+  animation: reviews-scroll 40s linear infinite;
+}
+
+.reviews-marquee-container:hover .reviews-marquee {
+  animation-play-state: paused;
+}
+
+.reviews-marquee-item {
+  flex-shrink: 0;
+  width: 320px;
+  padding: 1.5rem;
+  border: 1px solid hsl(var(--border) / 0.3);
+  background: hsl(var(--card) / 0.5);
+  backdrop-filter: blur(4px);
+  border-radius: 2px;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.reviews-marquee-item:hover {
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow: 0 4px 30px hsl(var(--primary) / 0.1);
+}
