@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { studioInfo } from "@/data/media";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export interface ArtistProfile {
   name: string;
@@ -14,6 +14,7 @@ export interface ArtistProfile {
   signatureStyle: string;
   tags?: string[];
   portfolioHighlights: string[];
+  portfolioImages?: string[];
 }
 
 interface Props {
@@ -22,14 +23,25 @@ interface Props {
 }
 
 const ArtistModal = ({ artist, onClose }: Props) => {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
   useEffect(() => {
     if (artist) {
       document.body.style.overflow = "hidden";
-      const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+      const handler = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          if (lightboxIndex !== null) setLightboxIndex(null);
+          else onClose();
+        }
+        if (lightboxIndex !== null && artist.portfolioImages) {
+          if (e.key === "ArrowRight") setLightboxIndex((prev) => (prev! + 1) % artist.portfolioImages!.length);
+          if (e.key === "ArrowLeft") setLightboxIndex((prev) => (prev! - 1 + artist.portfolioImages!.length) % artist.portfolioImages!.length);
+        }
+      };
       window.addEventListener("keydown", handler);
       return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", handler); };
     }
-  }, [artist, onClose]);
+  }, [artist, onClose, lightboxIndex]);
 
   return (
     <AnimatePresence>
@@ -111,6 +123,30 @@ const ArtistModal = ({ artist, onClose }: Props) => {
                 </div>
               </div>
 
+              {/* Portfolio Gallery */}
+              {artist.portfolioImages && artist.portfolioImages.length > 0 && (
+                <div>
+                  <p className="text-primary text-[10px] tracking-[0.3em] uppercase mb-4">Portfolio</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {artist.portfolioImages.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setLightboxIndex(i)}
+                        className="relative aspect-square overflow-hidden rounded-sm group"
+                      >
+                        <img
+                          src={img}
+                          alt={`${artist.name} work ${i + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-background/0 group-hover:bg-background/30 transition-colors duration-300" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* CTA */}
               <a
                 href={`https://wa.me/${studioInfo.whatsapp}?text=${encodeURIComponent(`Hi PopInk Studios! I'd like to book a consultation with ${artist.name}.`)}`}
@@ -118,10 +154,49 @@ const ArtistModal = ({ artist, onClose }: Props) => {
                 rel="noopener noreferrer"
                 className="block text-center bg-primary hover:bg-primary/80 text-primary-foreground px-8 py-4 text-sm tracking-[0.25em] uppercase transition-colors duration-300 rounded-sm wa-pulse"
               >
-                Book Consultation
+                Book With This Artist
               </a>
             </div>
           </motion.div>
+
+          {/* Fullscreen Lightbox */}
+          <AnimatePresence>
+            {lightboxIndex !== null && artist.portfolioImages && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[60] flex items-center justify-center bg-background/95 backdrop-blur-md"
+                onClick={() => setLightboxIndex(null)}
+              >
+                <button onClick={() => setLightboxIndex(null)} className="absolute top-4 right-4 text-foreground/40 hover:text-foreground z-10">
+                  <X size={28} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + artist.portfolioImages!.length) % artist.portfolioImages!.length); }}
+                  className="absolute left-4 text-foreground/40 hover:text-foreground z-10"
+                >
+                  <ChevronLeft size={32} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % artist.portfolioImages!.length); }}
+                  className="absolute right-4 text-foreground/40 hover:text-foreground z-10"
+                >
+                  <ChevronRight size={32} />
+                </button>
+                <motion.img
+                  key={lightboxIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  src={artist.portfolioImages[lightboxIndex]}
+                  alt={`${artist.name} portfolio ${lightboxIndex + 1}`}
+                  className="max-w-[90vw] max-h-[85vh] object-contain rounded-sm"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
