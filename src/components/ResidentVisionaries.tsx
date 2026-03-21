@@ -64,6 +64,14 @@ const artists: ArtistProfile[] = [
     philosophy: "Less is more, but only when that 'less' is absolutely perfect. A fine line has no room for error. Every stroke must be intentional, every curve deliberate. That's where the beauty lives.",
     signatureStyle: "Ultra-fine single-needle work creating delicate, almost ethereal designs that age gracefully. Known for script work that reads like calligraphy and minimalist designs that feel like whispered secrets.",
     tags: ["Fine Line", "Minimalist", "Script", "Botanical"],
+    portfolioImages: [
+      "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80",
+      "https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=400&q=80",
+      "https://images.unsplash.com/photo-1612459284270-27b3a394a307?w=400&q=80",
+      "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=400&q=80",
+      "https://images.unsplash.com/photo-1613779540856-2ead5e0ddb4d?w=400&q=80",
+      "https://images.unsplash.com/photo-1594067598377-478a1b3a4b21?w=400&q=80",
+    ],
     portfolioHighlights: [
       "Single-needle fine-line specialist",
       "Custom hand-lettered script designs",
