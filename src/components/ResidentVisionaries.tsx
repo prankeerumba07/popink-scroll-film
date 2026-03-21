@@ -39,6 +39,14 @@ const artists: ArtistProfile[] = [
     philosophy: "Mathematics is the language of the universe, and geometry is its art. I use the body's natural contours as guidelines, creating designs that flow with anatomy rather than fighting it.",
     signatureStyle: "Precision-engineered geometric patterns that wrap and flow with the body's natural musculature, combining dot-work gradients with bold blackwork structures.",
     tags: ["Blackwork", "Geometric", "Sacred Geometry", "Dot-work"],
+    portfolioImages: [
+      "https://images.unsplash.com/photo-1475180098004-ca77a66827be?w=400&q=80",
+      "https://images.unsplash.com/photo-1604869515882-4d10fa4b0492?w=400&q=80",
+      "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=400&q=80",
+      "https://images.unsplash.com/photo-1560707303-4e980ce876ad?w=400&q=80",
+      "https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?w=400&q=80",
+      "https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?w=400&q=80",
+    ],
     portfolioHighlights: [
       "Pioneered 'Architectural Blackwork' technique locally",
       "Full sleeve geometric compositions specialist",
