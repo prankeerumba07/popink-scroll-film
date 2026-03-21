@@ -14,6 +14,7 @@ const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ProcessSection = lazy(() => import("@/components/ProcessSection"));
 const WhyPopInk = lazy(() => import("@/components/WhyPopInk"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
+const ClientReviews = lazy(() => import("@/components/ClientReviews"));
 const TrustSection = lazy(() => import("@/components/TrustSection"));
 const LocationSection = lazy(() => import("@/components/LocationSection"));
 const ContactSection = lazy(() => import("@/components/ContactSection"));

@@ -35,10 +35,8 @@ const HeroSection = () => {
             >
               <source src="/videos/hero-video.mp4" type="video/mp4" />
             </video>
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-background/70" />
-            {/* Spotlight gradient */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_70%)]" />
+            {/* Subtle overlay — no corner shadows */}
+            <div className="absolute inset-0 bg-background/50" />
           </motion.div>
         )}
       </AnimatePresence>
