@@ -35,8 +35,16 @@ const HeroSection = () => {
             >
               <source src="/videos/hero-video.mp4" type="video/mp4" />
             </video>
-            {/* Subtle overlay — no corner shadows */}
-            <div className="absolute inset-0 bg-background/50" />
+            {/* Base overlay */}
+            <div className="absolute inset-0 bg-background/40" />
+            {/* Cinematic vignette — gradient edges blending into black background */}
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: `
+                radial-gradient(ellipse at center, transparent 50%, hsl(var(--background) / 0.6) 85%, hsl(var(--background)) 100%),
+                linear-gradient(to top, hsl(var(--background)) 0%, transparent 15%),
+                linear-gradient(to bottom, hsl(var(--background) / 0.5) 0%, transparent 10%)
+              `
+            }} />
           </motion.div>
         )}
       </AnimatePresence>

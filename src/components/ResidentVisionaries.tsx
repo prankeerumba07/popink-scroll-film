@@ -14,6 +14,14 @@ const artists: ArtistProfile[] = [
     philosophy: "Every tattoo is a covenant between artist and canvas. I don't just replicate images — I breathe life into them. The skin remembers, and my job is to make that memory extraordinary.",
     signatureStyle: "Known for dramatic light-and-shadow interplay in portrait work, using micro-detail layering to achieve a three-dimensional depth that seems to pulse beneath the skin.",
     tags: ["Hyper-Realism", "Portraits", "Black & Grey", "Memorial Art"],
+    portfolioImages: [
+      "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=400&q=80",
+      "https://images.unsplash.com/photo-1590246815117-0b5fbf67f78d?w=400&q=80",
+      "https://images.unsplash.com/photo-1562962230-16e4623d36e6?w=400&q=80",
+      "https://images.unsplash.com/photo-1598371839696-5c5bb1fed6e2?w=400&q=80",
+      "https://images.unsplash.com/photo-1567400358520-44e220972306?w=400&q=80",
+      "https://images.unsplash.com/photo-1542856391-010fb87dcfed?w=400&q=80",
+    ],
     portfolioHighlights: [
       "500+ portrait tattoos completed",
       "Featured in Kolkata Ink Festival 2023",
@@ -31,6 +39,14 @@ const artists: ArtistProfile[] = [
     philosophy: "Mathematics is the language of the universe, and geometry is its art. I use the body's natural contours as guidelines, creating designs that flow with anatomy rather than fighting it.",
     signatureStyle: "Precision-engineered geometric patterns that wrap and flow with the body's natural musculature, combining dot-work gradients with bold blackwork structures.",
     tags: ["Blackwork", "Geometric", "Sacred Geometry", "Dot-work"],
+    portfolioImages: [
+      "https://images.unsplash.com/photo-1475180098004-ca77a66827be?w=400&q=80",
+      "https://images.unsplash.com/photo-1604869515882-4d10fa4b0492?w=400&q=80",
+      "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=400&q=80",
+      "https://images.unsplash.com/photo-1560707303-4e980ce876ad?w=400&q=80",
+      "https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?w=400&q=80",
+      "https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?w=400&q=80",
+    ],
     portfolioHighlights: [
       "Pioneered 'Architectural Blackwork' technique locally",
       "Full sleeve geometric compositions specialist",
@@ -48,6 +64,14 @@ const artists: ArtistProfile[] = [
     philosophy: "Less is more, but only when that 'less' is absolutely perfect. A fine line has no room for error. Every stroke must be intentional, every curve deliberate. That's where the beauty lives.",
     signatureStyle: "Ultra-fine single-needle work creating delicate, almost ethereal designs that age gracefully. Known for script work that reads like calligraphy and minimalist designs that feel like whispered secrets.",
     tags: ["Fine Line", "Minimalist", "Script", "Botanical"],
+    portfolioImages: [
+      "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80",
+      "https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=400&q=80",
+      "https://images.unsplash.com/photo-1612459284270-27b3a394a307?w=400&q=80",
+      "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=400&q=80",
+      "https://images.unsplash.com/photo-1613779540856-2ead5e0ddb4d?w=400&q=80",
+      "https://images.unsplash.com/photo-1594067598377-478a1b3a4b21?w=400&q=80",
+    ],
     portfolioHighlights: [
       "Single-needle fine-line specialist",
       "Custom hand-lettered script designs",
