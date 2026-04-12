@@ -14,14 +14,14 @@ const TrustSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-20%" });
 
   return (
-    <section ref={ref} className="py-14 px-4">
+    <section ref={ref} className="py-14 px-6">
       <motion.div
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ duration: 1 }}
-        className="max-w-md mx-auto"
+        className="max-w-sm md:max-w-md mx-auto"
       >
-        <div className="grid grid-cols-3 gap-8">
+        <div className="grid grid-cols-3 gap-4 md:gap-8">
           {links.map(({ icon: Icon, label, href }, i) => (
             <motion.a
               key={label}
