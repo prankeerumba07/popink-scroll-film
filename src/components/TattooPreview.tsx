@@ -1,11 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Replace, Check } from "lucide-react";
+import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Check, MessageCircle, Phone } from "lucide-react";
 import { studioInfo } from "@/data/media";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Position { x: number; y: number; }
-
 type Complexity = "minimal" | "detailed" | "hyperrealism";
 type ColorType = "blackgrey" | "color";
 
@@ -36,15 +35,23 @@ const TattooPreview = () => {
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-center tattoo when container is ready
+  useEffect(() => {
+    if (bodyImage && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setTattooPos({ x: rect.width / 2, y: rect.height / 2 });
+    }
+  }, [bodyImage]);
+
   const handleFileUpload = useCallback((setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => setter(ev.target?.result as string);
     reader.readAsDataURL(file);
+    e.target.value = "";
   }, []);
 
-  // Camera mode for mobile
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -57,7 +64,6 @@ const TattooPreview = () => {
     }
   }, []);
 
-  // Bind stream to video element when both are ready
   useEffect(() => {
     if (cameraMode && cameraStream && videoRef.current) {
       videoRef.current.srcObject = cameraStream;
@@ -72,7 +78,6 @@ const TattooPreview = () => {
 
   useEffect(() => () => { cameraStream?.getTracks().forEach((t) => t.stop()); }, [cameraStream]);
 
-  // Touch/mouse handling — ONLY for tattoo dragging
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
@@ -102,14 +107,10 @@ const TattooPreview = () => {
   };
 
   const handlePointerUp = (e: React.TouchEvent | React.MouseEvent) => {
-    if (isDragging) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    if (isDragging) { e.stopPropagation(); e.preventDefault(); }
     setIsDragging(false);
   };
 
-  // Export
   const exportImage = useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -150,14 +151,12 @@ const TattooPreview = () => {
     bodyImg.src = bodyImage;
   }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation]);
 
-  // Price estimate
   const estimatePrice = useCallback(() => {
     let min: number, max: number;
     if (tattooSize < 80) { min = 3000; max = 6000; }
     else if (tattooSize < 150) { min = 8000; max = 15000; }
     else if (tattooSize < 220) { min = 15000; max = 30000; }
     else { min = 25000; max = 50000; }
-
     const mult = complexityMultiplier[complexity];
     const addon = colorAddon[colorType];
     return {
@@ -166,7 +165,11 @@ const TattooPreview = () => {
     };
   }, [tattooSize, complexity, colorType]);
 
-  const handleDone = () => setShowEstimate(true);
+  const estimate = estimatePrice();
+
+  const whatsappMessage = encodeURIComponent(
+    `Hi PopInk Studios, I just tried your tattoo preview tool and got an estimate of ₹${estimate.min.toLocaleString("en-IN")}–₹${estimate.max.toLocaleString("en-IN")}. I'd like to consult for this design.`
+  );
 
   const reset = () => {
     setBodyImage(null);
@@ -180,7 +183,7 @@ const TattooPreview = () => {
     stopCamera();
   };
 
-  const estimate = estimatePrice();
+  const hasPreview = bodyImage || cameraMode;
 
   return (
     <section ref={sectionRef} className="relative py-16 px-4 md:px-12">
@@ -201,7 +204,7 @@ const TattooPreview = () => {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="max-w-3xl mx-auto"
       >
-        {/* Estimate overlay */}
+        {/* ── Conversion CTA after DONE ── */}
         <AnimatePresence>
           {showEstimate && (
             <motion.div
@@ -210,30 +213,36 @@ const TattooPreview = () => {
               exit={{ opacity: 0, scale: 0.95 }}
               className="text-center border border-border/30 bg-card/80 backdrop-blur-sm rounded-sm p-8 md:p-12 mb-8"
             >
-              <p className="text-foreground/40 text-xs tracking-[0.4em] mb-3 uppercase">Estimated Range</p>
+              <p className="text-foreground/60 text-sm tracking-[0.3em] uppercase mb-2">Like What You See?</p>
+              <p className="text-foreground/40 text-xs tracking-[0.15em] mb-6">
+                Your design is ready for consultation.
+              </p>
+
+              <p className="text-foreground/40 text-[10px] tracking-[0.4em] mb-2 uppercase">Estimated Range</p>
               <p className="text-3xl md:text-4xl text-foreground tracking-[0.05em] mb-2">
                 ₹{estimate.min.toLocaleString("en-IN")} – ₹{estimate.max.toLocaleString("en-IN")}
               </p>
-              <p className="text-muted-foreground text-xs tracking-[0.1em] mb-6 max-w-md mx-auto">
-                This is an approximate estimate based on size, complexity, and color.
-                For accurate pricing, please consult our artists.
+              <p className="text-muted-foreground text-[10px] tracking-[0.1em] mb-8 max-w-sm mx-auto">
+                Approximate estimate based on size, complexity & color. Consult our artists for accurate pricing.
               </p>
+
               <div className="flex gap-3 justify-center flex-wrap">
                 <a
-                  href={`https://wa.me/${studioInfo.whatsapp}?text=${encodeURIComponent("Hi PopInk Studios! I just used your tattoo preview tool and would like to discuss pricing.")}`}
+                  href={`https://wa.me/${studioInfo.whatsapp}?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block bg-primary hover:bg-primary/80 text-primary-foreground px-8 py-4 text-xs tracking-[0.25em] uppercase transition-colors duration-300 rounded-sm"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/80 text-primary-foreground px-8 py-4 text-xs tracking-[0.25em] uppercase transition-colors duration-300 rounded-sm"
                 >
-                  WhatsApp
+                  <MessageCircle size={16} /> Consult via WhatsApp
                 </a>
                 <a
                   href={`tel:${studioInfo.phone}`}
-                  className="inline-block border border-border/40 hover:border-primary/40 text-foreground/70 hover:text-foreground px-8 py-4 text-xs tracking-[0.25em] uppercase transition-colors duration-300 rounded-sm"
+                  className="inline-flex items-center gap-2 border border-border/40 hover:border-primary/40 text-foreground/70 hover:text-foreground px-8 py-4 text-xs tracking-[0.25em] uppercase transition-colors duration-300 rounded-sm"
                 >
-                  Call Studio
+                  <Phone size={16} /> Call Now
                 </a>
               </div>
+
               <button
                 onClick={() => setShowEstimate(false)}
                 className="mt-6 text-foreground/30 text-[10px] tracking-[0.2em] uppercase hover:text-foreground/60 transition-colors"
@@ -246,35 +255,27 @@ const TattooPreview = () => {
 
         {!showEstimate && (
           <>
-            {/* Upload area */}
-            {!bodyImage && !cameraMode ? (
+            {/* ── Initial upload area ── */}
+            {!hasPreview ? (
               <div className="border border-dashed border-border/40 rounded-sm p-10 text-center space-y-6">
-                <div>
-                  <p className="text-foreground/50 text-sm tracking-[0.15em] mb-4">
-                    Upload a photo and your tattoo design
-                  </p>
-                  <div className="flex gap-4 justify-center flex-wrap">
+                <p className="text-foreground/50 text-sm tracking-[0.15em] mb-4">
+                  Start by uploading a body photo
+                </p>
+                <div className="flex gap-4 justify-center flex-wrap">
+                  <button
+                    onClick={() => bodyInputRef.current?.click()}
+                    className="flex items-center gap-2 px-6 py-3 border border-primary/50 text-foreground/70 hover:text-foreground hover:border-primary transition-colors text-xs tracking-[0.2em] uppercase rounded-sm"
+                  >
+                    <Upload size={16} /> {isMobile ? "Upload Photo" : "Upload Body Photo"}
+                  </button>
+                  {isMobile && (
                     <button
-                      onClick={() => bodyInputRef.current?.click()}
-                      className="flex items-center gap-2 px-6 py-3 border border-border/40 text-foreground/60 hover:text-foreground hover:border-primary/40 transition-colors text-xs tracking-[0.2em] uppercase rounded-sm"
+                      onClick={startCamera}
+                      className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/80 text-primary-foreground transition-colors text-xs tracking-[0.2em] uppercase rounded-sm"
                     >
-                      <Upload size={16} /> {isMobile ? "Upload Photo" : "Upload Body Photo"}
+                      <Camera size={16} /> Camera Mode
                     </button>
-                    <button
-                      onClick={() => tattooInputRef.current?.click()}
-                      className="flex items-center gap-2 px-6 py-3 border border-border/40 text-foreground/60 hover:text-foreground hover:border-primary/40 transition-colors text-xs tracking-[0.2em] uppercase rounded-sm"
-                    >
-                      <Upload size={16} /> Upload Design
-                    </button>
-                    {isMobile && (
-                      <button
-                        onClick={startCamera}
-                        className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/80 text-primary-foreground transition-colors text-xs tracking-[0.2em] uppercase rounded-sm"
-                      >
-                        <Camera size={16} /> Camera Mode
-                      </button>
-                    )}
-                  </div>
+                  )}
                 </div>
                 <input ref={bodyInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload(setBodyImage)} />
                 <input ref={tattooInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload(setTattooImage)} />
@@ -300,6 +301,7 @@ const TattooPreview = () => {
                     bodyImage && <img src={bodyImage} alt="Body" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                   )}
 
+                  {/* Tattoo overlay with realistic blending */}
                   {tattooImage && (
                     <div
                       className="absolute pointer-events-none"
@@ -319,28 +321,40 @@ const TattooPreview = () => {
                         draggable={false}
                         style={{
                           mixBlendMode: "multiply",
-                          opacity: 0.87,
-                          filter: "blur(0.4px) contrast(0.9) saturate(0.85)",
+                          opacity: 0.88,
+                          filter: "blur(0.35px) contrast(0.88) saturate(0.85) brightness(0.95)",
                         }}
                       />
-                      {/* Skin grain overlay for realism */}
+                      {/* Skin grain */}
                       <div
                         className="absolute inset-0 pointer-events-none rounded-sm"
                         style={{
                           mixBlendMode: "overlay",
-                          opacity: 0.1,
+                          opacity: 0.12,
                           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
                           backgroundRepeat: "repeat",
                         }}
                       />
-                      {/* Subtle shadow falloff at edges */}
+                      {/* Edge shadow for depth */}
                       <div
                         className="absolute inset-0 pointer-events-none"
                         style={{
-                          boxShadow: "inset 0 0 15px 5px hsla(var(--background) / 0.15)",
+                          boxShadow: "inset 0 0 18px 6px hsla(var(--background) / 0.18)",
                           borderRadius: "2px",
                         }}
                       />
+                    </div>
+                  )}
+
+                  {/* Prompt to upload tattoo design */}
+                  {!tattooImage && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <button
+                        onClick={() => tattooInputRef.current?.click()}
+                        className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/80 text-primary-foreground transition-colors text-xs tracking-[0.2em] uppercase rounded-sm shadow-lg"
+                      >
+                        <Upload size={16} /> Upload Tattoo Design
+                      </button>
                     </div>
                   )}
 
@@ -352,84 +366,82 @@ const TattooPreview = () => {
                   )}
                 </div>
 
-                {/* Controls */}
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <Minimize2 size={14} className="text-foreground/40" />
-                    <input type="range" min={40} max={300} value={tattooSize} onChange={(e) => setTattooSize(Number(e.target.value))} className="w-24 accent-[hsl(var(--primary))]" />
-                    <Maximize2 size={14} className="text-foreground/40" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RotateCw size={14} className="text-foreground/40" />
-                    <input type="range" min={0} max={360} value={tattooRotation} onChange={(e) => setTattooRotation(Number(e.target.value))} className="w-24 accent-[hsl(var(--primary))]" />
-                  </div>
-                </div>
+                {/* Controls — only show when tattoo is placed */}
+                {tattooImage && (
+                  <>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Minimize2 size={14} className="text-foreground/40" />
+                        <input type="range" min={40} max={300} value={tattooSize} onChange={(e) => setTattooSize(Number(e.target.value))} className="w-24 accent-[hsl(var(--primary))]" />
+                        <Maximize2 size={14} className="text-foreground/40" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RotateCw size={14} className="text-foreground/40" />
+                        <input type="range" min={0} max={360} value={tattooRotation} onChange={(e) => setTattooRotation(Number(e.target.value))} className="w-24 accent-[hsl(var(--primary))]" />
+                      </div>
+                    </div>
 
-                {/* Complexity & Color selectors */}
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground/40 text-[10px] tracking-[0.2em] uppercase">Complexity:</span>
-                    {(["minimal", "detailed", "hyperrealism"] as Complexity[]).map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setComplexity(c)}
-                        className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-sm border transition-colors ${
-                          complexity === c
-                            ? "border-primary text-primary bg-primary/10"
-                            : "border-border/30 text-foreground/40 hover:text-foreground/60"
-                        }`}
-                      >
-                        {c === "hyperrealism" ? "Hyper-Real" : c}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground/40 text-[10px] tracking-[0.2em] uppercase">Color:</span>
-                    <button
-                      onClick={() => setColorType("blackgrey")}
-                      className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-sm border transition-colors ${
-                        colorType === "blackgrey"
-                          ? "border-primary text-primary bg-primary/10"
-                          : "border-border/30 text-foreground/40 hover:text-foreground/60"
-                      }`}
-                    >
-                      B&G
-                    </button>
-                    <button
-                      onClick={() => setColorType("color")}
-                      className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-sm border transition-colors ${
-                        colorType === "color"
-                          ? "border-primary text-primary bg-primary/10"
-                          : "border-border/30 text-foreground/40 hover:text-foreground/60"
-                      }`}
-                    >
-                      Color
-                    </button>
-                  </div>
-                </div>
+                    {/* Complexity & Color */}
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground/40 text-[10px] tracking-[0.2em] uppercase">Complexity:</span>
+                        {(["minimal", "detailed", "hyperrealism"] as Complexity[]).map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => setComplexity(c)}
+                            className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-sm border transition-colors ${
+                              complexity === c
+                                ? "border-primary text-primary bg-primary/10"
+                                : "border-border/30 text-foreground/40 hover:text-foreground/60"
+                            }`}
+                          >
+                            {c === "hyperrealism" ? "Hyper-Real" : c}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground/40 text-[10px] tracking-[0.2em] uppercase">Color:</span>
+                        <button
+                          onClick={() => setColorType("blackgrey")}
+                          className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-sm border transition-colors ${
+                            colorType === "blackgrey" ? "border-primary text-primary bg-primary/10" : "border-border/30 text-foreground/40 hover:text-foreground/60"
+                          }`}
+                        >B&G</button>
+                        <button
+                          onClick={() => setColorType("color")}
+                          className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-sm border transition-colors ${
+                            colorType === "color" ? "border-primary text-primary bg-primary/10" : "border-border/30 text-foreground/40 hover:text-foreground/60"
+                          }`}
+                        >Color</button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Action buttons */}
                 <div className="flex flex-wrap items-center justify-center gap-3">
-                  <button
-                    onClick={handleDone}
-                    disabled={!tattooImage}
-                    className="flex items-center gap-1 px-5 py-2 bg-primary hover:bg-primary/80 text-primary-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors disabled:opacity-30"
-                  >
-                    <Check size={14} /> Done
-                  </button>
-                  <button
-                    onClick={exportImage}
-                    disabled={!tattooImage}
-                    className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors disabled:opacity-30"
-                  >
-                    <Download size={14} /> Save
-                  </button>
-                  <button
-                    onClick={() => tattooInputRef.current?.click()}
-                    className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
-                  >
-                    <Replace size={14} /> Replace
-                  </button>
+                  {tattooImage && (
+                    <>
+                      <button
+                        onClick={() => setShowEstimate(true)}
+                        className="flex items-center gap-1 px-5 py-2 bg-primary hover:bg-primary/80 text-primary-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
+                      >
+                        <Check size={14} /> Done
+                      </button>
+                      <button
+                        onClick={exportImage}
+                        className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
+                      >
+                        <Download size={14} /> Save
+                      </button>
+                      <button
+                        onClick={() => tattooInputRef.current?.click()}
+                        className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
+                      >
+                        <Upload size={14} /> Replace Design
+                      </button>
+                    </>
+                  )}
                   <button
                     onClick={reset}
                     className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
