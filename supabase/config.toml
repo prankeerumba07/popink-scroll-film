@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-tattoo]
 verify_jwt = false
+
+[functions.render-tattoo]
+verify_jwt = false
