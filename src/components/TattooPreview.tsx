@@ -112,6 +112,54 @@ const TattooPreview = () => {
     }
   }, [aiPrompt, colorType]);
 
+  const buildComposite = useCallback(async (): Promise<string | null> => {
+    const container = containerRef.current;
+    if (!container || !bodyImage || !tattooImage) return null;
+    return new Promise((resolve) => {
+      const bodyImg = new Image();
+      bodyImg.crossOrigin = "anonymous";
+      bodyImg.onload = () => {
+        const tattooImg = new Image();
+        tattooImg.crossOrigin = "anonymous";
+        tattooImg.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = bodyImg.naturalWidth;
+          canvas.height = bodyImg.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return resolve(null);
+          ctx.drawImage(bodyImg, 0, 0);
+
+          // Map on-screen container coords to source image coords (object-contain)
+          const cw = container.clientWidth;
+          const ch = container.clientHeight;
+          const scale = Math.min(cw / bodyImg.naturalWidth, ch / bodyImg.naturalHeight);
+          const dispW = bodyImg.naturalWidth * scale;
+          const dispH = bodyImg.naturalHeight * scale;
+          const offsetX = (cw - dispW) / 2;
+          const offsetY = (ch - dispH) / 2;
+          const cx = (tattooPos.x - offsetX) / scale;
+          const cy = (tattooPos.y - offsetY) / scale;
+          const sz = tattooSize / scale;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate((tattooRotation * Math.PI) / 180);
+          ctx.globalCompositeOperation = "multiply";
+          ctx.globalAlpha = 0.9;
+          ctx.filter = "blur(0.4px) contrast(0.9) saturate(0.88)";
+          ctx.drawImage(tattooImg, -sz / 2, -sz / 2, sz, sz);
+          ctx.restore();
+
+          resolve(canvas.toDataURL("image/jpeg", 0.92));
+        };
+        tattooImg.onerror = () => resolve(null);
+        tattooImg.src = tattooImage;
+      };
+      bodyImg.onerror = () => resolve(null);
+      bodyImg.src = bodyImage;
+    });
+  }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation]);
+
   const renderRealistic = useCallback(async () => {
     if (!bodyImage || !tattooImage) {
       toast.error("Add a body photo and a tattoo design first");
@@ -119,8 +167,10 @@ const TattooPreview = () => {
     }
     setIsRendering(true);
     try {
+      const compositeImage = await buildComposite();
+      if (!compositeImage) throw new Error("Could not prepare preview");
       const { data, error } = await supabase.functions.invoke("render-tattoo", {
-        body: { bodyImage, tattooImage, placementHint: placementHint.trim() || undefined },
+        body: { compositeImage, placementHint: placementHint.trim() || undefined },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -133,7 +183,7 @@ const TattooPreview = () => {
     } finally {
       setIsRendering(false);
     }
-  }, [bodyImage, tattooImage, placementHint]);
+  }, [bodyImage, tattooImage, placementHint, buildComposite]);
 
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();

@@ -12,17 +12,17 @@ serve(async (req) => {
   }
 
   try {
-    const { bodyImage, tattooImage, placementHint } = await req.json();
+    const { compositeImage, bodyImage, tattooImage, placementHint } = await req.json();
 
-    if (!bodyImage || typeof bodyImage !== "string") {
+    // Preferred mode: client sends a pre-composited image (body + tattoo already
+    // placed by the user at the exact position/size/rotation). The AI only
+    // refines realism — it MUST NOT move, resize, rotate, or remove anything.
+    const hasComposite = typeof compositeImage === "string" && compositeImage.length > 0;
+    const hasPair = typeof bodyImage === "string" && typeof tattooImage === "string";
+
+    if (!hasComposite && !hasPair) {
       return new Response(
-        JSON.stringify({ error: "Body image is required." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-    if (!tattooImage || typeof tattooImage !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Tattoo design is required." }),
+        JSON.stringify({ error: "compositeImage (preferred) or bodyImage+tattooImage required." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -30,25 +30,60 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
-    const hint = placementHint && typeof placementHint === "string" && placementHint.trim().length > 0
-      ? `Place the tattoo on the ${placementHint.trim()}.`
-      : "Place the tattoo on the most prominent visible body part (arm, forearm, wrist, shoulder, neck, chest, back, leg, or hand) that suits its size and orientation.";
+    const hintLine = placementHint && typeof placementHint === "string" && placementHint.trim().length > 0
+      ? `User-noted body part: ${placementHint.trim()} (for context only — do NOT use this to reposition).`
+      : "";
 
-    const instruction = `You are a professional tattoo visualization artist. Take the SECOND image (a tattoo design on a white/transparent background) and render it photorealistically onto the body shown in the FIRST image, as if it were a real tattoo on the person's skin.
+    const compositeInstruction = `You are a professional tattoo realism retoucher. The provided image already contains a body photo with a tattoo design overlaid at an EXACT position, size and rotation chosen by the user.
 
-${hint}
+${hintLine}
+
+YOUR ONLY JOB: make that overlaid tattoo look like real ink embedded in the skin — without moving, resizing, rotating, replacing, or removing it.
+
+ABSOLUTE RULES (do not violate):
+- DO NOT change the tattoo's position. Keep its center pixel-locked to where it currently is.
+- DO NOT change the tattoo's size or scale.
+- DO NOT change the tattoo's rotation or orientation (even if it looks upside down or angled).
+- DO NOT redraw, restyle, simplify, or reinterpret the tattoo artwork. Preserve every line and detail of the design exactly.
+- DO NOT remove, fade, lighten, cover, or alter ANY existing tattoos already on the skin. Keep them fully intact and visible.
+- DO NOT change the background, clothing, pose, face, hands, framing, crop, or composition.
+- DO NOT add new tattoos, text, watermarks, frames, borders, or any other elements.
+
+WHAT TO IMPROVE (in place, only on the overlaid tattoo region):
+- Blend the ink into the skin: follow micro skin contours and curvature where the tattoo already sits.
+- Match skin tone, warmth, and lighting direction so the ink reads as embedded, not pasted.
+- Apply realistic ink absorption: slightly soft edges, subtle micro-bleed into pores, very faint natural fading.
+- Let real skin grain, pores, and any body hair show through the ink subtly.
+- Add soft, physically correct highlights and shadows on the inked area to match the photo's existing lighting.
+- Avoid sticker look, vector look, oversaturation, over-sharpening, glow, or halo.
+
+The output must look like a natural front-camera / mirror preview of this exact photo, with the same tattoo in the same place — just more believable. Return only the edited photo.`;
+
+    const pairInstruction = `You are a professional tattoo visualization artist. Take the SECOND image (a tattoo design on a white/transparent background) and render it photorealistically onto the body shown in the FIRST image.
+
+${hintLine || "Place the tattoo on the most prominent visible body part that suits its size and orientation."}
 
 Strict requirements:
-- Follow the natural contours, curves, and anatomy of the body part — wrap the design around muscles and curves with subtle perspective warping.
-- Match scale, orientation, and rotation to the body position naturally.
-- Blend with the actual skin tone and texture seamlessly. Allow real skin grain and pores to show through the ink subtly.
-- Apply realistic ink absorption: slightly soft edges, micro-bleed into skin, very faint fading typical of real tattoos. Not sharp like a sticker.
-- Match the lighting direction, intensity, and color temperature of the original photo. Add soft skin highlights and subtle shadows where the body curves.
-- Keep the rest of the photo (background, clothing, pose, face, hands, lighting) IDENTICAL to the original — only add the tattoo.
-- The final result must look like a live front-camera / mirror preview of the person checking their real tattoo. Photorealistic, natural color balance, no oversaturation, no vector look, no flat overlay.
-- Do not add any text, watermark, frame, or extra elements.
+- Follow the natural contours, curves, and anatomy of the body part.
+- Match scale, orientation, lighting and color temperature naturally.
+- Do NOT remove, fade, or alter any existing tattoos already on the skin — keep them fully visible.
+- Blend with skin tone and texture seamlessly; allow skin grain and pores to show through subtly.
+- Apply realistic ink absorption: soft edges, micro-bleed, faint natural fading. No sticker / vector look.
+- Keep background, clothing, pose, face, hands and lighting IDENTICAL to the original.
+- No text, watermark, frame, or extra elements.
 
 Return only the edited photo.`;
+
+    const content: any[] = hasComposite
+      ? [
+          { type: "text", text: compositeInstruction },
+          { type: "image_url", image_url: { url: compositeImage } },
+        ]
+      : [
+          { type: "text", text: pairInstruction },
+          { type: "image_url", image_url: { url: bodyImage } },
+          { type: "image_url", image_url: { url: tattooImage } },
+        ];
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -58,16 +93,7 @@ Return only the edited photo.`;
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-image",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: instruction },
-              { type: "image_url", image_url: { url: bodyImage } },
-              { type: "image_url", image_url: { url: tattooImage } },
-            ],
-          },
-        ],
+        messages: [{ role: "user", content }],
         modalities: ["image", "text"],
       }),
     });
