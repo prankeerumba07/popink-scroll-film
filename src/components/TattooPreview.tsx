@@ -208,6 +208,8 @@ const TattooPreview = () => {
     setTattooRotation(0);
     setComplexity("minimal");
     setColorType("blackgrey");
+    setAiPrompt("");
+    setShowAiPanel(false);
     stopCamera();
   };
 
