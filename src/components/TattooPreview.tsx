@@ -33,6 +33,9 @@ const TattooPreview = () => {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [complexity, setComplexity] = useState<Complexity>("minimal");
   const [colorType, setColorType] = useState<ColorType>("blackgrey");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showAiPanel, setShowAiPanel] = useState(false);
 
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
