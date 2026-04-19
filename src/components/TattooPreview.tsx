@@ -236,6 +236,8 @@ const TattooPreview = () => {
     setColorType("blackgrey");
     setAiPrompt("");
     setShowAiPanel(false);
+    setRenderedImage(null);
+    setPlacementHint("");
     stopCamera();
   };
 
