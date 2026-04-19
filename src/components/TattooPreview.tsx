@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Check, MessageCircle, Phone } from "lucide-react";
+import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Check, MessageCircle, Phone, Sparkles, Loader2, Wand2 } from "lucide-react";
 import { studioInfo } from "@/data/media";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Position { x: number; y: number; }
 type Complexity = "minimal" | "detailed" | "hyperrealism";
@@ -31,6 +33,9 @@ const TattooPreview = () => {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [complexity, setComplexity] = useState<Complexity>("minimal");
   const [colorType, setColorType] = useState<ColorType>("blackgrey");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showAiPanel, setShowAiPanel] = useState(false);
 
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +82,29 @@ const TattooPreview = () => {
   }, [cameraStream]);
 
   useEffect(() => () => { cameraStream?.getTracks().forEach((t) => t.stop()); }, [cameraStream]);
+
+  const generateTattoo = useCallback(async () => {
+    const trimmed = aiPrompt.trim();
+    if (trimmed.length < 3) { toast.error("Please describe your tattoo idea"); return; }
+    if (trimmed.length > 500) { toast.error("Description too long (max 500 characters)"); return; }
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-tattoo", {
+        body: { prompt: trimmed, style: colorType },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.image) throw new Error("No image returned");
+      setTattooImage(data.image);
+      setShowAiPanel(false);
+      toast.success("Design generated! Drag to position it.");
+    } catch (e: any) {
+      console.error("Generate error:", e);
+      toast.error(e?.message || "Failed to generate design");
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [aiPrompt, colorType]);
 
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -180,6 +208,8 @@ const TattooPreview = () => {
     setTattooRotation(0);
     setComplexity("minimal");
     setColorType("blackgrey");
+    setAiPrompt("");
+    setShowAiPanel(false);
     stopCamera();
   };
 
@@ -346,15 +376,63 @@ const TattooPreview = () => {
                     </div>
                   )}
 
-                  {/* Prompt to upload tattoo design */}
-                  {!tattooImage && (
-                    <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Prompt to upload OR generate tattoo design */}
+                  {!tattooImage && !showAiPanel && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/30 backdrop-blur-[2px]">
                       <button
-                        onClick={() => tattooInputRef.current?.click()}
+                        onClick={() => setShowAiPanel(true)}
                         className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/80 text-primary-foreground transition-colors text-xs tracking-[0.2em] uppercase rounded-sm shadow-lg"
                       >
-                        <Upload size={16} /> Upload Tattoo Design
+                        <Sparkles size={16} /> Generate with AI
                       </button>
+                      <button
+                        onClick={() => tattooInputRef.current?.click()}
+                        className="flex items-center gap-2 px-5 py-2.5 border border-border/50 bg-background/70 hover:border-primary/60 text-foreground/80 hover:text-foreground transition-colors text-[10px] tracking-[0.2em] uppercase rounded-sm"
+                      >
+                        <Upload size={14} /> Upload Your Design
+                      </button>
+                    </div>
+                  )}
+
+                  {/* AI generation panel */}
+                  {!tattooImage && showAiPanel && (
+                    <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/85 backdrop-blur-sm">
+                      <div className="w-full max-w-sm space-y-3">
+                        <div className="text-center">
+                          <Wand2 size={20} className="text-primary mx-auto mb-2" />
+                          <p className="text-foreground/80 text-xs tracking-[0.25em] uppercase">Describe Your Tattoo</p>
+                          <p className="text-foreground/40 text-[10px] tracking-[0.1em] mt-1">AI will generate a design for you</p>
+                        </div>
+                        <textarea
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder="e.g. A minimalist wolf howling at a crescent moon, fine line"
+                          maxLength={500}
+                          rows={3}
+                          disabled={isGenerating}
+                          className="w-full bg-card/80 border border-border/40 rounded-sm px-3 py-2 text-xs text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/60 resize-none"
+                        />
+                        <div className="flex items-center justify-between text-[9px] text-foreground/40 tracking-[0.15em] uppercase">
+                          <span>Style: {colorType === "color" ? "Color" : "B&G"}</span>
+                          <span>{aiPrompt.length}/500</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={generateTattoo}
+                            disabled={isGenerating || aiPrompt.trim().length < 3}
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-xs tracking-[0.2em] uppercase rounded-sm transition-colors"
+                          >
+                            {isGenerating ? (<><Loader2 size={14} className="animate-spin" /> Generating…</>) : (<><Sparkles size={14} /> Generate</>)}
+                          </button>
+                          <button
+                            onClick={() => setShowAiPanel(false)}
+                            disabled={isGenerating}
+                            className="px-4 py-2.5 border border-border/40 text-foreground/50 hover:text-foreground text-xs tracking-[0.2em] uppercase rounded-sm transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -433,6 +511,12 @@ const TattooPreview = () => {
                         className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
                       >
                         <Download size={14} /> Save
+                      </button>
+                      <button
+                        onClick={() => { setTattooImage(null); setShowAiPanel(true); }}
+                        className="flex items-center gap-1 px-4 py-2 border border-primary/40 text-primary/80 hover:text-primary hover:border-primary text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
+                      >
+                        <Sparkles size={14} /> AI Regenerate
                       </button>
                       <button
                         onClick={() => tattooInputRef.current?.click()}
