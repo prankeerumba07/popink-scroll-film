@@ -513,6 +513,12 @@ const TattooPreview = () => {
                         <Download size={14} /> Save
                       </button>
                       <button
+                        onClick={() => { setTattooImage(null); setShowAiPanel(true); }}
+                        className="flex items-center gap-1 px-4 py-2 border border-primary/40 text-primary/80 hover:text-primary hover:border-primary text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
+                      >
+                        <Sparkles size={14} /> AI Regenerate
+                      </button>
+                      <button
                         onClick={() => tattooInputRef.current?.click()}
                         className="flex items-center gap-1 px-4 py-2 border border-border/30 text-foreground/50 hover:text-foreground text-xs tracking-[0.15em] uppercase rounded-sm transition-colors"
                       >
