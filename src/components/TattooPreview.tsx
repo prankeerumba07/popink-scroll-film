@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Check, MessageCircle, Phone } from "lucide-react";
+import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Check, MessageCircle, Phone, Sparkles, Loader2, Wand2 } from "lucide-react";
 import { studioInfo } from "@/data/media";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Position { x: number; y: number; }
 type Complexity = "minimal" | "detailed" | "hyperrealism";
