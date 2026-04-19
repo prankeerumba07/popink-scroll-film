@@ -541,6 +541,43 @@ const TattooPreview = () => {
                         >Color</button>
                       </div>
                     </div>
+
+                    {/* Realistic AI render row */}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <input
+                        type="text"
+                        value={placementHint}
+                        onChange={(e) => setPlacementHint(e.target.value)}
+                        placeholder="Placement (optional): e.g. forearm, wrist, neck"
+                        maxLength={60}
+                        className="bg-card/60 border border-border/40 rounded-sm px-3 py-2 text-[11px] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/60 w-64"
+                      />
+                      {!renderedImage ? (
+                        <button
+                          onClick={renderRealistic}
+                          disabled={isRendering}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/80 disabled:opacity-50 text-primary-foreground text-[11px] tracking-[0.2em] uppercase rounded-sm transition-colors"
+                        >
+                          {isRendering ? <><Loader2 size={14} className="animate-spin" /> Rendering…</> : <><Wand2 size={14} /> Render Realistic</>}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={renderRealistic}
+                            disabled={isRendering}
+                            className="flex items-center gap-1.5 px-4 py-2 border border-primary/50 text-primary hover:bg-primary/10 text-[11px] tracking-[0.2em] uppercase rounded-sm transition-colors"
+                          >
+                            <RotateCw size={14} /> Re-render
+                          </button>
+                          <button
+                            onClick={() => setRenderedImage(null)}
+                            className="flex items-center gap-1.5 px-4 py-2 border border-border/40 text-foreground/60 hover:text-foreground text-[11px] tracking-[0.2em] uppercase rounded-sm transition-colors"
+                          >
+                            Edit Manually
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </>
                 )}
 
