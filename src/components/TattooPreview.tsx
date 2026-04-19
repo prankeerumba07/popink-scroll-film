@@ -183,7 +183,7 @@ const TattooPreview = () => {
     } finally {
       setIsRendering(false);
     }
-  }, [bodyImage, tattooImage, placementHint]);
+  }, [bodyImage, tattooImage, placementHint, buildComposite]);
 
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
