@@ -51,6 +51,9 @@ const TattooPreview = () => {
     }
   }, [bodyImage]);
 
+  // Invalidate AI render when inputs change
+  useEffect(() => { setRenderedImage(null); }, [bodyImage, tattooImage]);
+
   const handleFileUpload = useCallback((setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
