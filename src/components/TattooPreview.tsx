@@ -362,8 +362,8 @@ const TattooPreview = () => {
                     bodyImage && <img src={bodyImage} alt="Body" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                   )}
 
-                  {/* Tattoo overlay with realistic blending */}
-                  {tattooImage && (
+                  {/* Tattoo CSS overlay (hidden while realistic render is shown) */}
+                  {tattooImage && !renderedImage && (
                     <div
                       className="absolute pointer-events-none"
                       style={{
@@ -386,7 +386,6 @@ const TattooPreview = () => {
                           filter: "blur(0.35px) contrast(0.88) saturate(0.85) brightness(0.95)",
                         }}
                       />
-                      {/* Skin grain */}
                       <div
                         className="absolute inset-0 pointer-events-none rounded-sm"
                         style={{
@@ -396,7 +395,6 @@ const TattooPreview = () => {
                           backgroundRepeat: "repeat",
                         }}
                       />
-                      {/* Edge shadow for depth */}
                       <div
                         className="absolute inset-0 pointer-events-none"
                         style={{
@@ -404,6 +402,25 @@ const TattooPreview = () => {
                           borderRadius: "2px",
                         }}
                       />
+                    </div>
+                  )}
+
+                  {/* Realistic AI-rendered preview (replaces CSS overlay) */}
+                  {renderedImage && (
+                    <img
+                      src={renderedImage}
+                      alt="Realistic tattoo preview"
+                      className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                      draggable={false}
+                    />
+                  )}
+
+                  {/* Rendering loader */}
+                  {isRendering && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-sm">
+                      <Loader2 size={28} className="text-primary animate-spin" />
+                      <p className="text-foreground/80 text-[10px] tracking-[0.3em] uppercase">Rendering on skin…</p>
+                      <p className="text-foreground/40 text-[9px] tracking-[0.15em]">This can take 10–20 seconds</p>
                     </div>
                   )}
 
