@@ -36,6 +36,9 @@ const TattooPreview = () => {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAiPanel, setShowAiPanel] = useState(false);
+  const [renderedImage, setRenderedImage] = useState<string | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const [placementHint, setPlacementHint] = useState("");
 
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
@@ -47,6 +50,9 @@ const TattooPreview = () => {
       setTattooPos({ x: rect.width / 2, y: rect.height / 2 });
     }
   }, [bodyImage]);
+
+  // Invalidate AI render when inputs change
+  useEffect(() => { setRenderedImage(null); }, [bodyImage, tattooImage]);
 
   const handleFileUpload = useCallback((setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,6 +111,29 @@ const TattooPreview = () => {
       setIsGenerating(false);
     }
   }, [aiPrompt, colorType]);
+
+  const renderRealistic = useCallback(async () => {
+    if (!bodyImage || !tattooImage) {
+      toast.error("Add a body photo and a tattoo design first");
+      return;
+    }
+    setIsRendering(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("render-tattoo", {
+        body: { bodyImage, tattooImage, placementHint: placementHint.trim() || undefined },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.image) throw new Error("No image returned");
+      setRenderedImage(data.image);
+      toast.success("Realistic preview ready");
+    } catch (e: any) {
+      console.error("Render error:", e);
+      toast.error(e?.message || "Failed to render preview");
+    } finally {
+      setIsRendering(false);
+    }
+  }, [bodyImage, tattooImage, placementHint]);
 
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -210,6 +239,8 @@ const TattooPreview = () => {
     setColorType("blackgrey");
     setAiPrompt("");
     setShowAiPanel(false);
+    setRenderedImage(null);
+    setPlacementHint("");
     stopCamera();
   };
 
@@ -331,8 +362,8 @@ const TattooPreview = () => {
                     bodyImage && <img src={bodyImage} alt="Body" className="w-full h-full object-contain pointer-events-none" draggable={false} />
                   )}
 
-                  {/* Tattoo overlay with realistic blending */}
-                  {tattooImage && (
+                  {/* Tattoo CSS overlay (hidden while realistic render is shown) */}
+                  {tattooImage && !renderedImage && (
                     <div
                       className="absolute pointer-events-none"
                       style={{
@@ -355,7 +386,6 @@ const TattooPreview = () => {
                           filter: "blur(0.35px) contrast(0.88) saturate(0.85) brightness(0.95)",
                         }}
                       />
-                      {/* Skin grain */}
                       <div
                         className="absolute inset-0 pointer-events-none rounded-sm"
                         style={{
@@ -365,7 +395,6 @@ const TattooPreview = () => {
                           backgroundRepeat: "repeat",
                         }}
                       />
-                      {/* Edge shadow for depth */}
                       <div
                         className="absolute inset-0 pointer-events-none"
                         style={{
@@ -373,6 +402,25 @@ const TattooPreview = () => {
                           borderRadius: "2px",
                         }}
                       />
+                    </div>
+                  )}
+
+                  {/* Realistic AI-rendered preview (replaces CSS overlay) */}
+                  {renderedImage && (
+                    <img
+                      src={renderedImage}
+                      alt="Realistic tattoo preview"
+                      className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                      draggable={false}
+                    />
+                  )}
+
+                  {/* Rendering loader */}
+                  {isRendering && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-sm">
+                      <Loader2 size={28} className="text-primary animate-spin" />
+                      <p className="text-foreground/80 text-[10px] tracking-[0.3em] uppercase">Rendering on skin…</p>
+                      <p className="text-foreground/40 text-[9px] tracking-[0.15em]">This can take 10–20 seconds</p>
                     </div>
                   )}
 
@@ -492,6 +540,43 @@ const TattooPreview = () => {
                           }`}
                         >Color</button>
                       </div>
+                    </div>
+
+                    {/* Realistic AI render row */}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <input
+                        type="text"
+                        value={placementHint}
+                        onChange={(e) => setPlacementHint(e.target.value)}
+                        placeholder="Placement (optional): e.g. forearm, wrist, neck"
+                        maxLength={60}
+                        className="bg-card/60 border border-border/40 rounded-sm px-3 py-2 text-[11px] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/60 w-64"
+                      />
+                      {!renderedImage ? (
+                        <button
+                          onClick={renderRealistic}
+                          disabled={isRendering}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/80 disabled:opacity-50 text-primary-foreground text-[11px] tracking-[0.2em] uppercase rounded-sm transition-colors"
+                        >
+                          {isRendering ? <><Loader2 size={14} className="animate-spin" /> Rendering…</> : <><Wand2 size={14} /> Render Realistic</>}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={renderRealistic}
+                            disabled={isRendering}
+                            className="flex items-center gap-1.5 px-4 py-2 border border-primary/50 text-primary hover:bg-primary/10 text-[11px] tracking-[0.2em] uppercase rounded-sm transition-colors"
+                          >
+                            <RotateCw size={14} /> Re-render
+                          </button>
+                          <button
+                            onClick={() => setRenderedImage(null)}
+                            className="flex items-center gap-1.5 px-4 py-2 border border-border/40 text-foreground/60 hover:text-foreground text-[11px] tracking-[0.2em] uppercase rounded-sm transition-colors"
+                          >
+                            Edit Manually
+                          </button>
+                        </>
+                      )}
                     </div>
                   </>
                 )}
