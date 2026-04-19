@@ -83,6 +83,29 @@ const TattooPreview = () => {
 
   useEffect(() => () => { cameraStream?.getTracks().forEach((t) => t.stop()); }, [cameraStream]);
 
+  const generateTattoo = useCallback(async () => {
+    const trimmed = aiPrompt.trim();
+    if (trimmed.length < 3) { toast.error("Please describe your tattoo idea"); return; }
+    if (trimmed.length > 500) { toast.error("Description too long (max 500 characters)"); return; }
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-tattoo", {
+        body: { prompt: trimmed, style: colorType },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.image) throw new Error("No image returned");
+      setTattooImage(data.image);
+      setShowAiPanel(false);
+      toast.success("Design generated! Drag to position it.");
+    } catch (e: any) {
+      console.error("Generate error:", e);
+      toast.error(e?.message || "Failed to generate design");
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [aiPrompt, colorType]);
+
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
