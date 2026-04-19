@@ -36,6 +36,9 @@ const TattooPreview = () => {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAiPanel, setShowAiPanel] = useState(false);
+  const [renderedImage, setRenderedImage] = useState<string | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const [placementHint, setPlacementHint] = useState("");
 
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
@@ -105,6 +108,29 @@ const TattooPreview = () => {
       setIsGenerating(false);
     }
   }, [aiPrompt, colorType]);
+
+  const renderRealistic = useCallback(async () => {
+    if (!bodyImage || !tattooImage) {
+      toast.error("Add a body photo and a tattoo design first");
+      return;
+    }
+    setIsRendering(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("render-tattoo", {
+        body: { bodyImage, tattooImage, placementHint: placementHint.trim() || undefined },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.image) throw new Error("No image returned");
+      setRenderedImage(data.image);
+      toast.success("Realistic preview ready");
+    } catch (e: any) {
+      console.error("Render error:", e);
+      toast.error(e?.message || "Failed to render preview");
+    } finally {
+      setIsRendering(false);
+    }
+  }, [bodyImage, tattooImage, placementHint]);
 
   const getEventPos = (e: React.TouchEvent | React.MouseEvent): Position => {
     const rect = containerRef.current?.getBoundingClientRect();
