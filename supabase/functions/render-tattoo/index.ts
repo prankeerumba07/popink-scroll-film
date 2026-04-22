@@ -38,26 +38,29 @@ serve(async (req) => {
 
 ${hintLine}
 
-YOUR ONLY JOB: make that overlaid tattoo look like real ink embedded in the skin — without moving, resizing, rotating, replacing, or removing it.
+YOUR ONLY JOB: make that overlaid tattoo look like real ink embedded BENEATH the skin surface — without moving, resizing, rotating, replacing, or removing it.
 
-ABSOLUTE RULES (do not violate):
+ABSOLUTE RULES (LOCKED — never violate):
 - DO NOT change the tattoo's position. Keep its center pixel-locked to where it currently is.
-- DO NOT change the tattoo's size or scale.
-- DO NOT change the tattoo's rotation or orientation (even if it looks upside down or angled).
-- DO NOT redraw, restyle, simplify, or reinterpret the tattoo artwork. Preserve every line and detail of the design exactly.
-- DO NOT remove, fade, lighten, cover, or alter ANY existing tattoos already on the skin. Keep them fully intact and visible.
+- DO NOT change the tattoo's size or scale (not even by 1%).
+- DO NOT change the tattoo's rotation or orientation (even if it looks upside down, mirrored, or angled).
+- DO NOT redraw, restyle, simplify, straighten, or reinterpret the tattoo artwork. Preserve every line, dot, and detail of the design exactly.
+- DO NOT remove, fade, blur, lighten, cover, or alter ANY existing tattoos already on the skin. Keep them 100% intact and visible.
+- If the new tattoo overlaps an existing tattoo, blend the two naturally so both coexist on skin — never erase or hide the existing one.
 - DO NOT change the background, clothing, pose, face, hands, framing, crop, or composition.
 - DO NOT add new tattoos, text, watermarks, frames, borders, or any other elements.
 
-WHAT TO IMPROVE (in place, only on the overlaid tattoo region):
-- Blend the ink into the skin: follow micro skin contours and curvature where the tattoo already sits.
-- Match skin tone, warmth, and lighting direction so the ink reads as embedded, not pasted.
-- Apply realistic ink absorption: slightly soft edges, subtle micro-bleed into pores, very faint natural fading.
-- Let real skin grain, pores, and any body hair show through the ink subtly.
-- Add soft, physically correct highlights and shadows on the inked area to match the photo's existing lighting.
-- Avoid sticker look, vector look, oversaturation, over-sharpening, glow, or halo.
+WHAT TO IMPROVE (in place, only on the overlaid tattoo region) — embed the ink INTO the skin:
+- Make the ink sit BENEATH the skin surface, not on top. No sticker, no decal, no double-layer effect.
+- Slightly reduce ink opacity to mimic real ink absorption into the dermis (healed-tattoo look, not fresh paint).
+- Soften edges subtly so there are no harsh sticker outlines; allow gentle ink diffusion into surrounding pores.
+- Preserve and re-show natural skin texture, pores, micro-creases, and any body hair THROUGH the tattoo.
+- Match skin tone, undertone, warmth, and ambient color cast so the ink reads as part of the skin.
+- Apply micro-warping that follows skin curvature and muscle contours WITHOUT shifting the tattoo's position, size, or rotation.
+- Match ambient lighting and shadows: add soft, physically correct highlights/shadows on the inked area consistent with the photo's existing light direction.
+- Slight natural fading and micro-bleed for a healed look — avoid flat, vector, oversaturated, glowing, or over-sharpened ink.
 
-The output must look like a natural front-camera / mirror preview of this exact photo, with the same tattoo in the same place — just more believable. Return only the edited photo.`;
+The output must look like a natural mirror/front-camera photo of this exact body, with the same tattoo in the exact same place — just believably embedded in the skin. Return only the edited photo.`;
 
     const pairInstruction = `You are a professional tattoo visualization artist. Take the SECOND image (a tattoo design on a white/transparent background) and render it photorealistically onto the body shown in the FIRST image.
 
