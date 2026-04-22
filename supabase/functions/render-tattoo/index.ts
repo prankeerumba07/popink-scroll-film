@@ -50,6 +50,13 @@ ABSOLUTE RULES (LOCKED — never violate):
 - DO NOT change the background, clothing, pose, face, hands, framing, crop, or composition.
 - DO NOT add new tattoos, text, watermarks, frames, borders, or any other elements.
 
+BOUNDARY CONSTRAINT (CRITICAL — fixes spill outside skin):
+- The tattoo MUST be strictly contained within the visible skin region of the body part it sits on.
+- ANY ink stroke that currently extends past the skin edge onto background, clothing, hair, jewellery, or empty space MUST be erased / cut off cleanly at the skin silhouette.
+- Treat the skin silhouette as a hard mask: ink lives only INSIDE the body. Outside the body = no ink, no halo, no shadow, no fringe.
+- At the skin edge, fade the ink softly into the boundary (1–2 px feather) so the cutoff looks natural, never a hard rectangle.
+- Do NOT push the tattoo back inward to "fit" — keep its position, just clip whatever falls outside.
+
 ADVANCED COMPOSITING (this is the key fix):
 - Treat the new tattoo strictly as sub-dermal INK, not as a top layer. The skin is the base; the ink lives just under it.
 - Use multiply / soft-light blending behavior: ink only DARKENS the underlying skin, it never lightens or covers it.

@@ -155,29 +155,97 @@ const TattooPreview = () => {
             const d = imgData.data;
             for (let i = 0; i < d.length; i += 4) {
               const r = d[i], g = d[i + 1], b = d[i + 2];
-              // brightness 0..255
               const lum = 0.299 * r + 0.587 * g + 0.114 * b;
               if (lum > 235) {
-                // near-white background → fully transparent
                 d[i + 3] = 0;
               } else if (lum > 180) {
-                // soft fade for light edges (anti-aliasing)
                 d[i + 3] = Math.round(d[i + 3] * ((235 - lum) / 55));
               }
             }
             tCtx.putImageData(imgData, 0, 0);
           } catch {
-            // CORS-tainted (rare); fall back to raw image
+            // CORS-tainted; fall back to raw image
+          }
+
+          // Build a SKIN MASK from the body image so the tattoo can never
+          // spill outside the skin region (no overflow onto background/clothes).
+          // Heuristic skin detector in RGB + simple YCbCr range, then dilated
+          // and blurred for soft edges. Mask is built at body-image resolution.
+          const mCanvas = document.createElement("canvas");
+          mCanvas.width = bodyImg.naturalWidth;
+          mCanvas.height = bodyImg.naturalHeight;
+          const mCtx = mCanvas.getContext("2d");
+          let maskReady = false;
+          if (mCtx) {
+            try {
+              mCtx.drawImage(bodyImg, 0, 0);
+              const bodyData = mCtx.getImageData(0, 0, mCanvas.width, mCanvas.height);
+              const bd = bodyData.data;
+              const mask = mCtx.createImageData(mCanvas.width, mCanvas.height);
+              const md = mask.data;
+              for (let i = 0; i < bd.length; i += 4) {
+                const r = bd[i], g = bd[i + 1], b = bd[i + 2];
+                // RGB skin rule (Kovac et al., relaxed for varied tones)
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const rgbSkin =
+                  r > 60 && g > 30 && b > 15 &&
+                  max - min > 12 &&
+                  Math.abs(r - g) > 10 &&
+                  r > g && r > b;
+                // YCbCr skin rule
+                const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+                const ycbcrSkin = cb >= 77 && cb <= 135 && cr >= 133 && cr <= 178;
+                const isSkin = rgbSkin || ycbcrSkin;
+                md[i] = 255; md[i + 1] = 255; md[i + 2] = 255;
+                md[i + 3] = isSkin ? 255 : 0;
+              }
+              mCtx.putImageData(mask, 0, 0);
+              // Soft-blur the mask edges so the tattoo fades at skin boundaries
+              // instead of cutting hard.
+              const blurCanvas = document.createElement("canvas");
+              blurCanvas.width = mCanvas.width;
+              blurCanvas.height = mCanvas.height;
+              const bCtx = blurCanvas.getContext("2d");
+              if (bCtx) {
+                bCtx.filter = `blur(${Math.max(2, Math.round(Math.min(mCanvas.width, mCanvas.height) * 0.005))}px)`;
+                bCtx.drawImage(mCanvas, 0, 0);
+                mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+                mCtx.drawImage(blurCanvas, 0, 0);
+              }
+              maskReady = true;
+            } catch {
+              maskReady = false;
+            }
+          }
+
+          // Render the tattoo onto an offscreen layer, then mask to skin,
+          // then composite that masked layer onto the body with multiply.
+          const layer = document.createElement("canvas");
+          layer.width = canvas.width;
+          layer.height = canvas.height;
+          const lCtx = layer.getContext("2d");
+          if (!lCtx) return resolve(null);
+          lCtx.save();
+          lCtx.translate(cx, cy);
+          lCtx.rotate((tattooRotation * Math.PI) / 180);
+          lCtx.globalAlpha = 0.82;
+          lCtx.filter = "blur(0.5px) contrast(0.88) saturate(0.85)";
+          lCtx.drawImage(tCanvas, -sz / 2, -sz / 2, sz, sz);
+          lCtx.restore();
+
+          if (maskReady) {
+            // Keep only pixels of the tattoo that fall inside the skin mask.
+            lCtx.globalCompositeOperation = "destination-in";
+            lCtx.globalAlpha = 1;
+            lCtx.filter = "none";
+            lCtx.drawImage(mCanvas, 0, 0);
           }
 
           ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate((tattooRotation * Math.PI) / 180);
-          // Multiply blend so ink darkens skin like real ink, never lightens it.
           ctx.globalCompositeOperation = "multiply";
-          ctx.globalAlpha = 0.82;
-          ctx.filter = "blur(0.5px) contrast(0.88) saturate(0.85)";
-          ctx.drawImage(tCanvas, -sz / 2, -sz / 2, sz, sz);
+          ctx.drawImage(layer, 0, 0);
           ctx.restore();
 
           resolve(canvas.toDataURL("image/jpeg", 0.92));
