@@ -141,13 +141,43 @@ const TattooPreview = () => {
           const cy = (tattooPos.y - offsetY) / scale;
           const sz = tattooSize / scale;
 
+          // Pre-process tattoo on an offscreen canvas: remove white/near-white
+          // background (chroma key to alpha) so only the ink renders. This
+          // prevents the rectangular "sticker box" effect over the skin.
+          const tCanvas = document.createElement("canvas");
+          tCanvas.width = tattooImg.naturalWidth;
+          tCanvas.height = tattooImg.naturalHeight;
+          const tCtx = tCanvas.getContext("2d");
+          if (!tCtx) return resolve(null);
+          tCtx.drawImage(tattooImg, 0, 0);
+          try {
+            const imgData = tCtx.getImageData(0, 0, tCanvas.width, tCanvas.height);
+            const d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+              const r = d[i], g = d[i + 1], b = d[i + 2];
+              // brightness 0..255
+              const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+              if (lum > 235) {
+                // near-white background → fully transparent
+                d[i + 3] = 0;
+              } else if (lum > 180) {
+                // soft fade for light edges (anti-aliasing)
+                d[i + 3] = Math.round(d[i + 3] * ((235 - lum) / 55));
+              }
+            }
+            tCtx.putImageData(imgData, 0, 0);
+          } catch {
+            // CORS-tainted (rare); fall back to raw image
+          }
+
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate((tattooRotation * Math.PI) / 180);
+          // Multiply blend so ink darkens skin like real ink, never lightens it.
           ctx.globalCompositeOperation = "multiply";
-          ctx.globalAlpha = 0.9;
-          ctx.filter = "blur(0.4px) contrast(0.9) saturate(0.88)";
-          ctx.drawImage(tattooImg, -sz / 2, -sz / 2, sz, sz);
+          ctx.globalAlpha = 0.82;
+          ctx.filter = "blur(0.5px) contrast(0.88) saturate(0.85)";
+          ctx.drawImage(tCanvas, -sz / 2, -sz / 2, sz, sz);
           ctx.restore();
 
           resolve(canvas.toDataURL("image/jpeg", 0.92));
