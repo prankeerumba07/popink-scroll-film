@@ -42,7 +42,9 @@ YOUR ONLY JOB: make that overlaid tattoo look like real ink embedded BENEATH the
 
 ABSOLUTE RULES (LOCKED — never violate):
 - DO NOT change the tattoo's position. Keep its center pixel-locked to where it currently is.
-- DO NOT change the tattoo's size or scale (not even by 1%).
+- DO NOT change the tattoo's size, scale, width, or height (not even by 1%). The bounding box of the tattoo in the output MUST match the bounding box in the input pixel-for-pixel.
+- DO NOT resize, upscale, downscale, zoom, crop, re-frame, or re-fit the tattoo for any reason (lighting, contour, realism, or composition).
+- DO NOT change the output image's resolution, aspect ratio, or canvas size. Return the image at the SAME width × height as the input.
 - DO NOT change the tattoo's rotation or orientation (even if it looks upside down, mirrored, or angled).
 - DO NOT redraw, restyle, simplify, straighten, or reinterpret the tattoo artwork. Preserve every line, dot, and detail of the design exactly.
 - DO NOT remove, fade, blur, lighten, cover, or alter ANY existing tattoos already on the skin. Keep them 100% intact and visible at full original opacity.
