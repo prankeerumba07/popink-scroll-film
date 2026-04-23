@@ -63,19 +63,10 @@ const TattooPreview = () => {
   // Invalidate AI render when inputs change
   useEffect(() => { setRenderedImage(null); }, [bodyImage, tattooImage]);
 
-  // Auto-trigger realistic render the moment both a body photo AND a tattoo
-  // design are present (upload OR AI-generate). No manual "Render" click needed.
-  // We wait one frame so auto-centering / default size state has been applied,
-  // then call renderRealistic. Guarded by isRendering to avoid double-fires.
-  useEffect(() => {
-    if (!bodyImage || !tattooImage) return;
-    if (isRendering) return;
-    const t = setTimeout(() => { renderRealistic(); }, 60);
-    return () => clearTimeout(t);
-    // Intentionally only depend on the two inputs — we want this to fire
-    // exactly when a new tattoo or body image is set, not on every drag.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bodyImage, tattooImage]);
+  // NOTE: Realistic AI render is intentionally MANUAL (user clicks the button).
+  // Auto-rendering caused size mismatches between the user-selected size and
+  // the AI output. The local composite (drawn at exact tattooSize) is always
+  // pixel-perfect to what the user picks; the AI pass is opt-in only.
 
   const handleFileUpload = useCallback((setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
