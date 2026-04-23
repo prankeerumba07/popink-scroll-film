@@ -10,6 +10,11 @@ interface Position { x: number; y: number; }
 type Complexity = "minimal" | "detailed" | "hyperrealism";
 type ColorType = "blackgrey" | "color";
 
+interface ImageDimensions {
+  width: number;
+  height: number;
+}
+
 const complexityMultiplier: Record<Complexity, number> = { minimal: 1, detailed: 1.5, hyperrealism: 2 };
 const colorAddon: Record<ColorType, number> = { blackgrey: 0, color: 2000 };
 
@@ -23,6 +28,7 @@ const TattooPreview = () => {
 
   const [bodyImage, setBodyImage] = useState<string | null>(null);
   const [tattooImage, setTattooImage] = useState<string | null>(null);
+  const [tattooImageDimensions, setTattooImageDimensions] = useState<ImageDimensions | null>(null);
   const [tattooPos, setTattooPos] = useState<Position>({ x: 150, y: 150 });
   const [tattooSize, setTattooSize] = useState(120);
   const [tattooRotation, setTattooRotation] = useState(0);
@@ -43,6 +49,23 @@ const TattooPreview = () => {
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
 
+  const getTattooDisplaySize = useCallback((size: number) => {
+    const width = tattooImageDimensions?.width ?? 1;
+    const height = tattooImageDimensions?.height ?? 1;
+    if (width <= 0 || height <= 0) return { width: size, height: size };
+
+    const aspectRatio = width / height;
+    if (aspectRatio >= 1) {
+      return { width: size, height: size / aspectRatio };
+    }
+
+    return { width: size * aspectRatio, height: size };
+  }, [tattooImageDimensions]);
+
+  const clearRenderedPreview = useCallback(() => {
+    setRenderedImage(null);
+  }, []);
+
   // Auto-center tattoo (and set a sensible default size) whenever the body
   // photo OR the tattoo design changes. This means the moment a user uploads
   // or generates a tattoo, it appears centered on the body at a medium size —
@@ -60,8 +83,23 @@ const TattooPreview = () => {
     }
   }, [bodyImage, tattooImage]);
 
-  // Invalidate AI render when inputs change
-  useEffect(() => { setRenderedImage(null); }, [bodyImage, tattooImage]);
+  useEffect(() => {
+    if (!tattooImage) {
+      setTattooImageDimensions(null);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      setTattooImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.src = tattooImage;
+  }, [tattooImage]);
+
+  // Invalidate realistic render whenever the visible tattoo changes
+  useEffect(() => {
+    clearRenderedPreview();
+  }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation, clearRenderedPreview]);
 
   // NOTE: Realistic AI render is intentionally MANUAL (user clicks the button).
   // Auto-rendering caused size mismatches between the user-selected size and
@@ -153,7 +191,9 @@ const TattooPreview = () => {
           const offsetY = (ch - dispH) / 2;
           const cx = (tattooPos.x - offsetX) / scale;
           const cy = (tattooPos.y - offsetY) / scale;
-          const sz = tattooSize / scale;
+          const previewSize = getTattooDisplaySize(tattooSize);
+          const drawWidth = previewSize.width / scale;
+          const drawHeight = previewSize.height / scale;
 
           // Pre-process tattoo on an offscreen canvas: remove white/near-white
           // background (chroma key to alpha) so only the ink renders. This
@@ -249,7 +289,7 @@ const TattooPreview = () => {
           // keeping skin texture visible through it.
           lCtx.globalAlpha = 0.95;
           lCtx.filter = "blur(0.4px) contrast(1.08) saturate(1.18) brightness(0.92)";
-          lCtx.drawImage(tCanvas, -sz / 2, -sz / 2, sz, sz);
+          lCtx.drawImage(tCanvas, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
           lCtx.restore();
 
           if (maskReady) {
@@ -273,7 +313,7 @@ const TattooPreview = () => {
       bodyImg.onerror = () => resolve(null);
       bodyImg.src = bodyImage;
     });
-  }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation]);
+  }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation, getTattooDisplaySize]);
 
   const renderRealistic = useCallback(async () => {
     if (!bodyImage || !tattooImage) {
@@ -349,18 +389,23 @@ const TattooPreview = () => {
         const tattooImg = new Image();
         tattooImg.crossOrigin = "anonymous";
         tattooImg.onload = () => {
-          const scaleX = bodyImg.width / container.clientWidth;
-          const scaleY = bodyImg.height / container.clientHeight;
-          const cx = tattooPos.x * scaleX;
-          const cy = tattooPos.y * scaleY;
-          const sz = tattooSize * scaleX;
+          const scale = Math.min(container.clientWidth / bodyImg.width, container.clientHeight / bodyImg.height);
+          const dispW = bodyImg.width * scale;
+          const dispH = bodyImg.height * scale;
+          const offsetX = (container.clientWidth - dispW) / 2;
+          const offsetY = (container.clientHeight - dispH) / 2;
+          const cx = (tattooPos.x - offsetX) / scale;
+          const cy = (tattooPos.y - offsetY) / scale;
+          const previewSize = getTattooDisplaySize(tattooSize);
+          const drawWidth = previewSize.width / scale;
+          const drawHeight = previewSize.height / scale;
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate((tattooRotation * Math.PI) / 180);
           ctx.globalCompositeOperation = "multiply";
           ctx.globalAlpha = 0.88;
           ctx.filter = "blur(0.4px) contrast(0.92) saturate(0.9)";
-          ctx.drawImage(tattooImg, -sz / 2, -sz / 2, sz, sz);
+          ctx.drawImage(tattooImg, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
           ctx.restore();
           const link = document.createElement("a");
           link.download = "popink-tattoo-preview.png";
@@ -371,7 +416,7 @@ const TattooPreview = () => {
       }
     };
     bodyImg.src = bodyImage;
-  }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation]);
+  }, [bodyImage, tattooImage, tattooPos, tattooSize, tattooRotation, getTattooDisplaySize]);
 
   const estimatePrice = useCallback(() => {
     let min: number, max: number;
