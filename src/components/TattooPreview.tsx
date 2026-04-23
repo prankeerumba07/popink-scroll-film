@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Camera, Upload, RotateCw, Maximize2, Minimize2, Download, Trash2, Check, MessageCircle, Phone, Sparkles, Loader2, Wand2 } from "lucide-react";
+import { FunctionsFetchError, FunctionsHttpError, FunctionsRelayError } from "@supabase/supabase-js";
 import { studioInfo } from "@/data/media";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,6 +66,32 @@ const TattooPreview = () => {
   const clearRenderedPreview = useCallback(() => {
     setRenderedImage(null);
   }, []);
+
+  const getFunctionErrorDetails = async (error: unknown, fallbackMessage: string) => {
+    if (error instanceof FunctionsHttpError) {
+      const status = error.context.status;
+      try {
+        const payload = await error.context.json();
+        const message = typeof payload?.error === "string" ? payload.error : fallbackMessage;
+        return { status, message };
+      } catch {
+        return { status, message: fallbackMessage };
+      }
+    }
+
+    if (error instanceof FunctionsRelayError || error instanceof FunctionsFetchError) {
+      return {
+        status: null,
+        message: "Could not reach the rendering service. Please try again.",
+      };
+    }
+
+    if (error instanceof Error) {
+      return { status: null, message: error.message || fallbackMessage };
+    }
+
+    return { status: null, message: fallbackMessage };
+  };
 
   // Auto-center tattoo (and set a sensible default size) whenever the body
   // photo OR the tattoo design changes. This means the moment a user uploads
@@ -156,9 +183,10 @@ const TattooPreview = () => {
       setTattooImage(data.image);
       setShowAiPanel(false);
       toast.success("Design generated! Drag to position it.");
-    } catch (e: any) {
-      console.error("Generate error:", e);
-      toast.error(e?.message || "Failed to generate design");
+    } catch (e: unknown) {
+      const { status, message } = await getFunctionErrorDetails(e, "Failed to generate design");
+      console.error("Generate error:", { status, message, error: e });
+      toast.error(status === 402 ? "AI design generation is temporarily unavailable. Please try again later." : message);
     } finally {
       setIsGenerating(false);
     }
@@ -321,8 +349,9 @@ const TattooPreview = () => {
       return;
     }
     setIsRendering(true);
+    let compositeImage: string | null = null;
     try {
-      const compositeImage = await buildComposite();
+      compositeImage = await buildComposite();
       if (!compositeImage) throw new Error("Could not prepare preview");
       const { data, error } = await supabase.functions.invoke("render-tattoo", {
         body: { compositeImage, placementHint: placementHint.trim() || undefined },
@@ -332,9 +361,17 @@ const TattooPreview = () => {
       if (!data?.image) throw new Error("No image returned");
       setRenderedImage(data.image);
       toast.success("Realistic preview ready");
-    } catch (e: any) {
-      console.error("Render error:", e);
-      toast.error(e?.message || "Failed to render preview");
+    } catch (e: unknown) {
+      const { status, message } = await getFunctionErrorDetails(e, "Failed to render preview");
+      console.error("Render error:", { status, message, error: e });
+
+      if (status === 402 && compositeImage) {
+        setRenderedImage(compositeImage);
+        toast.error("Realistic rendering is temporarily unavailable, so the exact manual preview is shown instead.");
+        return;
+      }
+
+      toast.error(message);
     } finally {
       setIsRendering(false);
     }
