@@ -43,13 +43,22 @@ const TattooPreview = () => {
   const bodyInputRef = useRef<HTMLInputElement>(null);
   const tattooInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-center tattoo when container is ready
+  // Auto-center tattoo (and set a sensible default size) whenever the body
+  // photo OR the tattoo design changes. This means the moment a user uploads
+  // or generates a tattoo, it appears centered on the body at a medium size —
+  // ready to be dragged / resized / rotated. The size set here is the EXACT
+  // size used by buildComposite for the final render (1:1, no post-scaling).
   useEffect(() => {
-    if (bodyImage && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setTattooPos({ x: rect.width / 2, y: rect.height / 2 });
+    if (!bodyImage || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setTattooPos({ x: rect.width / 2, y: rect.height / 2 });
+    if (tattooImage) {
+      // Medium default = ~30% of the smaller container dimension, clamped.
+      const medium = Math.round(Math.min(rect.width, rect.height) * 0.3);
+      setTattooSize(Math.max(80, Math.min(240, medium)));
+      setTattooRotation(0);
     }
-  }, [bodyImage]);
+  }, [bodyImage, tattooImage]);
 
   // Invalidate AI render when inputs change
   useEffect(() => { setRenderedImage(null); }, [bodyImage, tattooImage]);
