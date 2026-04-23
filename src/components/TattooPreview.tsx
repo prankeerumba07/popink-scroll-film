@@ -533,8 +533,8 @@ const TattooPreview = () => {
                         draggable={false}
                         style={{
                           mixBlendMode: "multiply",
-                          opacity: 0.88,
-                          filter: "blur(0.35px) contrast(0.88) saturate(0.85) brightness(0.95)",
+                          opacity: 0.95,
+                          filter: "blur(0.3px) contrast(1.1) saturate(1.2) brightness(0.9)",
                         }}
                       />
                       <div
