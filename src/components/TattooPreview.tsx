@@ -230,8 +230,11 @@ const TattooPreview = () => {
           lCtx.save();
           lCtx.translate(cx, cy);
           lCtx.rotate((tattooRotation * Math.PI) / 180);
-          lCtx.globalAlpha = 0.82;
-          lCtx.filter = "blur(0.5px) contrast(0.88) saturate(0.85)";
+          // Slightly higher opacity + boosted contrast/saturation so ink reads
+          // darker and more vibrant once multiplied onto the skin, while still
+          // keeping skin texture visible through it.
+          lCtx.globalAlpha = 0.95;
+          lCtx.filter = "blur(0.4px) contrast(1.08) saturate(1.18) brightness(0.92)";
           lCtx.drawImage(tCanvas, -sz / 2, -sz / 2, sz, sz);
           lCtx.restore();
 
@@ -530,8 +533,8 @@ const TattooPreview = () => {
                         draggable={false}
                         style={{
                           mixBlendMode: "multiply",
-                          opacity: 0.88,
-                          filter: "blur(0.35px) contrast(0.88) saturate(0.85) brightness(0.95)",
+                          opacity: 0.95,
+                          filter: "blur(0.3px) contrast(1.1) saturate(1.2) brightness(0.9)",
                         }}
                       />
                       <div

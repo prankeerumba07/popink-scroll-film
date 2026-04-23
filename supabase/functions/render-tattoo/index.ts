@@ -72,8 +72,14 @@ OVERLAP WITH EXISTING TATTOOS (key fix):
 
 SKIN INTEGRATION:
 - Match skin tone, undertone, warmth, and ambient color cast so the ink reads as part of this body.
-- Apply slight desaturation and a tiny natural fade to simulate healed ink (not fresh wet paint).
+- Apply a slight natural fade to simulate healed ink (not fresh wet paint), but DO NOT wash the tattoo out.
 - Add subtle ink diffusion / micro-bleed into adjacent pores at the edges.
+
+INK INTENSITY (IMPORTANT — keep tattoo dark and vibrant):
+- The tattoo must read as DARK, DEFINED, and clearly visible — never faded, washed out, ghosted, or barely-there.
+- For black/grey designs: preserve deep, rich blacks and crisp mid-tones. Enhance contrast slightly so lines stay sharp and readable, without going pure flat black.
+- For colored designs: preserve full color richness and saturation. Colors should look freshly healed — vivid but believable, embedded under skin (NOT neon, NOT glowing, NOT painted on top).
+- Modulate intensity only slightly with skin tone/lighting — never drop overall ink density below ~85% of the input.
 
 CONTOUR & LIGHTING:
 - Apply micro-warping that follows skin curvature and muscle/arm shape WITHOUT shifting the tattoo's position, size, or rotation.
