@@ -137,6 +137,17 @@ Return only the edited photo.`;
         );
       }
       if (resp.status === 402) {
+        if (hasComposite) {
+          return new Response(
+            JSON.stringify({
+              image: compositeImage,
+              warning: "AI credits exhausted. Showing the exact manual preview instead.",
+              fallback: true,
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+
         return new Response(
           JSON.stringify({ error: "AI credits exhausted. Please contact the studio." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
