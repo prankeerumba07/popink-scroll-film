@@ -360,6 +360,12 @@ const TattooPreview = () => {
       if (data?.error) throw new Error(data.error);
       if (!data?.image) throw new Error("No image returned");
       setRenderedImage(data.image);
+
+      if (data?.fallback) {
+        toast.error(data.warning || "Realistic rendering is temporarily unavailable, so the exact manual preview is shown instead.");
+        return;
+      }
+
       toast.success("Realistic preview ready");
     } catch (e: unknown) {
       const { status, message } = await getFunctionErrorDetails(e, "Failed to render preview");
