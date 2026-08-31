@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "sdk_version": "0.28.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "ink-film",
+      "version": "0.1.0",
+      "title": "Ink Film"
+    },
+    "tools": [
+      {
+        "name": "get_studio_info",
+        "title": "Get studio info",
+        "description": "Get The PopInk Studios contact details, address, opening hours, and services offered.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_styles_and_artists",
+        "title": "List tattoo styles and artists",
+        "description": "List the tattoo styles offered by The PopInk Studios and the resident artists with their specialties.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "estimate_tattoo_price",
+        "title": "Estimate tattoo price",
+        "description": "Estimate the price range in INR for a tattoo at The PopInk Studios based on size, complexity, and whether it is full color.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "string",
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "description": "small = up to 2 inches, medium = 3-6 inches, large = 7+ inches or half sleeve"
+            },
+            "complexity": {
+              "type": "string",
+              "enum": [
+                "basic",
+                "detailed",
+                "hyper-realism"
+              ],
+              "description": "Design complexity."
+            },
+            "color": {
+              "type": "boolean",
+              "description": "True for full color, false or omitted for black and grey."
+            }
+          },
+          "required": [
+            "size",
+            "complexity"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_aftercare_guide",
+        "title": "Get aftercare guide",
+        "description": "Get tattoo healing and aftercare guidance from The PopInk Studios, including expected pain levels by body placement.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
