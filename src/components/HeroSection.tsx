@@ -51,7 +51,11 @@ const HeroSection = () => {
 
       {/* Logo */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+        <h1 className="sr-only">
+          The PopInk Studios — Professional Tattoo and Piercing Studio in Kolkata
+        </h1>
         <AnimatePresence>
+
           {showContent && (
             <motion.img
               src="/images/logo.jpeg"
