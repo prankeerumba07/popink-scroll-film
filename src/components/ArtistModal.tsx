@@ -66,6 +66,7 @@ const ArtistModal = ({ artist, onClose }: Props) => {
           >
             <button
               onClick={onClose}
+              aria-label="Close artist details"
               className="absolute top-4 right-4 z-20 text-foreground/40 hover:text-foreground transition-colors"
             >
               <X size={24} />
@@ -132,6 +133,7 @@ const ArtistModal = ({ artist, onClose }: Props) => {
                       <button
                         key={i}
                         onClick={() => setLightboxIndex(i)}
+                        aria-label={`View ${artist.name} portfolio image ${i + 1}`}
                         className="relative aspect-square overflow-hidden rounded-sm group"
                       >
                         <img
@@ -169,17 +171,19 @@ const ArtistModal = ({ artist, onClose }: Props) => {
                 className="fixed inset-0 z-[60] flex items-center justify-center bg-background/95 backdrop-blur-md"
                 onClick={() => setLightboxIndex(null)}
               >
-                <button onClick={() => setLightboxIndex(null)} className="absolute top-4 right-4 text-foreground/40 hover:text-foreground z-10">
+                <button onClick={() => setLightboxIndex(null)} aria-label="Close image viewer" className="absolute top-4 right-4 text-foreground/40 hover:text-foreground z-10">
                   <X size={28} />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + artist.portfolioImages!.length) % artist.portfolioImages!.length); }}
+                  aria-label="Previous image"
                   className="absolute left-4 text-foreground/40 hover:text-foreground z-10"
                 >
                   <ChevronLeft size={32} />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % artist.portfolioImages!.length); }}
+                  aria-label="Next image"
                   className="absolute right-4 text-foreground/40 hover:text-foreground z-10"
                 >
                   <ChevronRight size={32} />

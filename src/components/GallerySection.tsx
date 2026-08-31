@@ -111,17 +111,19 @@ const GallerySection = () => {
             className="fixed inset-0 z-50 bg-background/95 flex items-center justify-center"
             onClick={closeLightbox}
           >
-            <button onClick={closeLightbox} className="absolute top-6 right-6 text-foreground/60 hover:text-foreground z-50">
+            <button onClick={closeLightbox} aria-label="Close image viewer" className="absolute top-6 right-6 text-foreground/60 hover:text-foreground z-50">
               <X size={28} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              aria-label="Previous image"
               className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground z-50"
             >
               <ChevronLeft size={36} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              aria-label="Next image"
               className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground z-50"
             >
               <ChevronRight size={36} />
